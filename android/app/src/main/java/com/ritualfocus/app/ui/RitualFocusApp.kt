@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -37,6 +38,7 @@ import com.ritualfocus.app.ui.screens.AddHabitSheet
 import com.ritualfocus.app.ui.screens.FocusScreen
 import com.ritualfocus.app.ui.screens.HabitMenuSheet
 import com.ritualfocus.app.ui.screens.HabitsScreen
+import com.ritualfocus.app.ui.screens.ScheduleSheet
 import com.ritualfocus.app.ui.screens.SettingsSheet
 import com.ritualfocus.app.ui.screens.StatsScreen
 import com.ritualfocus.app.ui.theme.LocalRfColors
@@ -44,7 +46,10 @@ import com.ritualfocus.app.util.Dates
 import com.ritualfocus.app.util.Export
 import com.ritualfocus.app.util.Notifications
 import com.ritualfocus.app.util.Stats
+import dev.chrisbanes.haze.rememberHazeState
+import dev.chrisbanes.haze.hazeSource
 import kotlinx.coroutines.delay
+import java.time.LocalDate
 
 @Composable
 fun resolveDark(theme: String): Boolean = when (theme) {
@@ -65,7 +70,9 @@ fun RitualFocusApp(viewModel: AppViewModel) {
     var showAdd by remember { mutableStateOf(false) }
     var showSettings by remember { mutableStateOf(false) }
     var menuHabit by remember { mutableStateOf<Habit?>(null) }
+    var scheduleHabit by remember { mutableStateOf<Habit?>(null) }
     var toast by remember { mutableStateOf<String?>(null) }
+    val hazeState = rememberHazeState()
 
     var confettiToken by remember { mutableIntStateOf(0) }
     var particleToken by remember { mutableIntStateOf(0) }
@@ -105,9 +112,11 @@ fun RitualFocusApp(viewModel: AppViewModel) {
     }
 
     fun handleCheckIn(habit: Habit, color: Color, center: Offset) {
+        val scheduled = Stats.isScheduled(habit, LocalDate.now())
+        val previousStreak = Stats.currentStreak(habit)
         val checked = viewModel.toggleCheckIn(habit.id)
         if (!checked) {
-            toast = "已取消打卡"
+            toast = if (scheduled) "已取消打卡" else "已取消额外打卡"
             return
         }
         val updated = viewModel.data.value.habits.firstOrNull { it.id == habit.id }
@@ -116,7 +125,8 @@ fun RitualFocusApp(viewModel: AppViewModel) {
         particleColor = color
         particleToken++
         when {
-            streak == 7 -> {
+            !scheduled -> toast = "已额外打卡 · 不计入连续"
+            streak == 7 && previousStreak < 7 -> {
                 confettiToken++
                 toast = "坚持 7 天，太棒了！"
             }
@@ -155,59 +165,68 @@ fun RitualFocusApp(viewModel: AppViewModel) {
     }
 
     BackHandler(
-        enabled = showAdd || showSettings || menuHabit != null || tab != "habits"
+        enabled = showAdd || showSettings || menuHabit != null || scheduleHabit != null ||
+            tab != "habits"
     ) {
         when {
             showAdd -> showAdd = false
             showSettings -> showSettings = false
+            scheduleHabit != null -> scheduleHabit = null
             menuHabit != null -> menuHabit = null
             tab != "habits" -> tab = "habits"
         }
     }
 
     Box(Modifier.fillMaxSize().background(palette.bg)) {
-        BgDecor()
+        Box(Modifier.fillMaxSize().hazeSource(hazeState)) {
+            BgDecor()
 
-        Column(Modifier.fillMaxSize()) {
-            AppNavBar(
-                title = when (tab) {
-                    "focus" -> "专注"
-                    "stats" -> "统计"
-                    else -> "习惯"
-                },
-                dark = dark,
-                onToggleTheme = { viewModel.setTheme(if (dark) "light" else "dark") },
-                onSettings = { showSettings = true }
-            )
+            Column(Modifier.fillMaxSize()) {
+                AppNavBar(
+                    title = when (tab) {
+                        "focus" -> "专注"
+                        "stats" -> "统计"
+                        else -> "习惯"
+                    },
+                    dark = dark,
+                    onToggleTheme = { viewModel.setTheme(if (dark) "light" else "dark") },
+                    onSettings = { showSettings = true }
+                )
 
-            Crossfade(
-                targetState = tab,
-                modifier = Modifier.weight(1f),
-                label = "page"
-            ) { current ->
-                when (current) {
-                    "focus" -> FocusScreen(
-                        data = data,
-                        remaining = remaining,
-                        onToggle = {
-                            val wasRunning = viewModel.data.value.focusRuntime.isRunning
-                            viewModel.toggleTimer()
-                            if (!wasRunning) requestNotificationPermission()
-                        },
-                        onReset = { viewModel.resetTimer() }
-                    )
-                    "stats" -> StatsScreen(data = data)
-                    else -> HabitsScreen(
-                        data = data,
-                        onAdd = { showAdd = true },
-                        onOpenHabit = { menuHabit = it },
-                        onCheckIn = { habit, color, center -> handleCheckIn(habit, color, center) }
-                    )
+                Crossfade(
+                    targetState = tab,
+                    modifier = Modifier.weight(1f),
+                    label = "page"
+                ) { current ->
+                    when (current) {
+                        "focus" -> FocusScreen(
+                            data = data,
+                            remaining = remaining,
+                            onToggle = {
+                                val wasRunning = viewModel.data.value.focusRuntime.isRunning
+                                viewModel.toggleTimer()
+                                if (!wasRunning) requestNotificationPermission()
+                            },
+                            onReset = { viewModel.resetTimer() }
+                        )
+                        "stats" -> StatsScreen(data = data)
+                        else -> HabitsScreen(
+                            data = data,
+                            onAdd = { showAdd = true },
+                            onOpenHabit = { menuHabit = it },
+                            onCheckIn = { habit, color, center -> handleCheckIn(habit, color, center) }
+                        )
+                    }
                 }
             }
-
-            AppTabBar(current = tab, onSelect = { tab = it })
         }
+
+        AppTabBar(
+            current = tab,
+            onSelect = { tab = it },
+            hazeState = hazeState,
+            modifier = Modifier.align(Alignment.BottomCenter)
+        )
 
         ToastHost(message = toast, modifier = Modifier.fillMaxSize())
         ConfettiOverlay(token = confettiToken, modifier = Modifier.fillMaxSize())
@@ -226,8 +245,15 @@ fun RitualFocusApp(viewModel: AppViewModel) {
         if (showAdd) {
             AddHabitSheet(
                 onDismiss = { showAdd = false },
-                onAdd = { name, icon, color ->
-                    viewModel.addHabit(name, icon, color)
+                onAdd = { name, icon, color, schedule ->
+                    viewModel.addHabit(
+                        name = name,
+                        icon = icon,
+                        color = color,
+                        scheduleType = schedule.type,
+                        weekdays = schedule.weekdays,
+                        intervalDays = schedule.intervalDays
+                    )
                     showAdd = false
                     toast = "已添加习惯"
                 }
@@ -252,12 +278,33 @@ fun RitualFocusApp(viewModel: AppViewModel) {
         menuHabit?.let { habit ->
             HabitMenuSheet(
                 habit = habit,
+                onEditSchedule = {
+                    scheduleHabit = habit
+                    menuHabit = null
+                },
                 onDelete = {
                     viewModel.deleteHabit(habit.id)
                     menuHabit = null
                     toast = "已删除习惯"
                 },
                 onDismiss = { menuHabit = null }
+            )
+        }
+
+        scheduleHabit?.let { habit ->
+            ScheduleSheet(
+                habit = habit,
+                onDismiss = { scheduleHabit = null },
+                onSave = { schedule ->
+                    viewModel.updateSchedule(
+                        id = habit.id,
+                        scheduleType = schedule.type,
+                        weekdays = schedule.weekdays,
+                        intervalDays = schedule.intervalDays
+                    )
+                    scheduleHabit = null
+                    toast = "已更新打卡计划"
+                }
             )
         }
     }

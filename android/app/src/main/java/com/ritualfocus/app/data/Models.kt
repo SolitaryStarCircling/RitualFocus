@@ -10,7 +10,11 @@ data class Habit(
     val icon: String,
     val color: String,
     val createdAt: String,
-    val checkInDates: Set<String>
+    val checkInDates: Set<String>,
+    val scheduleType: String = "daily",
+    val weekdays: Set<Int> = emptySet(),
+    val intervalDays: Int = 2,
+    val scheduleAnchor: String = createdAt
 )
 
 data class Settings(
@@ -49,6 +53,10 @@ data class AppData(
                 put("color", habit.color)
                 put("createdAt", habit.createdAt)
                 put("checkInDates", JSONArray(habit.checkInDates.sorted()))
+                put("scheduleType", habit.scheduleType)
+                put("weekdays", JSONArray(habit.weekdays.sorted()))
+                put("intervalDays", habit.intervalDays)
+                put("scheduleAnchor", habit.scheduleAnchor)
             })
         }
         root.put("habits", habitsJson)
@@ -95,6 +103,19 @@ data class AppData(
                                 if (key.isNotBlank()) dates.add(key)
                             }
                         }
+                        val createdAt = item.optString("createdAt").ifBlank {
+                            LocalDate.now().toString()
+                        }
+                        val scheduleType = item.optString("scheduleType", "daily")
+                            .takeIf { it == "weekdays" || it == "interval" } ?: "daily"
+                        val weekdays = mutableSetOf<Int>()
+                        val weekdaysJson = item.optJSONArray("weekdays")
+                        if (weekdaysJson != null) {
+                            for (k in 0 until weekdaysJson.length()) {
+                                val day = weekdaysJson.optInt(k, 0)
+                                if (day in 1..7) weekdays.add(day)
+                            }
+                        }
                         habits.add(
                             Habit(
                                 id = item.optString("id").ifBlank {
@@ -103,10 +124,17 @@ data class AppData(
                                 name = name.take(8),
                                 icon = item.optString("icon").ifBlank { "🧘" },
                                 color = item.optString("color").ifBlank { "#007AFF" },
-                                createdAt = item.optString("createdAt").ifBlank {
-                                    LocalDate.now().toString()
+                                createdAt = createdAt,
+                                checkInDates = dates,
+                                scheduleType = if (scheduleType == "weekdays" && weekdays.isEmpty()) {
+                                    "daily"
+                                } else {
+                                    scheduleType
                                 },
-                                checkInDates = dates
+                                weekdays = weekdays,
+                                intervalDays = item.optInt("intervalDays", 2).coerceIn(2, 30),
+                                scheduleAnchor = item.optString("scheduleAnchor")
+                                    .ifBlank { createdAt }
                             )
                         )
                     }

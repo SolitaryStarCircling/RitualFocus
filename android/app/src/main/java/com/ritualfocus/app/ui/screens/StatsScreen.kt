@@ -52,14 +52,14 @@ fun StatsScreen(data: AppData) {
 
     val todayMinutes = data.focusRecords[Dates.key()] ?: 0
     val done = Stats.todayDone(data)
-    val total = data.habits.size
+    val total = Stats.todayScheduledTotal(data)
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .verticalScroll(scroll)
             .padding(horizontal = 16.dp, vertical = 16.dp)
-            .padding(bottom = 22.dp)
+            .padding(bottom = 112.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),

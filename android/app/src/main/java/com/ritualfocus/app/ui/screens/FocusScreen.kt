@@ -55,6 +55,7 @@ fun FocusScreen(
             .fillMaxWidth()
             .verticalScroll(scroll)
             .padding(horizontal = 16.dp, vertical = 18.dp)
+            .padding(bottom = 100.dp)
     ) {
         GlassCard(
             modifier = Modifier.fillMaxWidth(),

@@ -65,8 +65,10 @@ fun HabitsScreen(
 ) {
     val palette = LocalRfColors.current
     val scroll = rememberScrollState()
+    val today = java.time.LocalDate.now()
     val done = Stats.todayDone(data)
-    val total = data.habits.size
+    val total = Stats.todayScheduledTotal(data)
+    val extra = Stats.todayExtraCheckIns(data)
     val streak = Stats.bestCurrentStreak(data)
     val target = if (total > 0) done.toFloat() / total else 0f
     val barFraction by animateFloatAsState(target, label = "todayBar")
@@ -76,7 +78,7 @@ fun HabitsScreen(
             .fillMaxWidth()
             .verticalScroll(scroll)
             .padding(horizontal = 16.dp, vertical = 16.dp)
-            .padding(bottom = 22.dp),
+            .padding(bottom = 112.dp),
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
         GlassCard(
@@ -102,11 +104,22 @@ fun HabitsScreen(
                             color = palette.text
                         )
                         Text(
-                            text = " / $total 已完成",
+                            text = when {
+                                total > 0 -> " / $total 已完成"
+                                else -> " 已完成 · 今天休息"
+                            },
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
                             color = palette.text2,
                             modifier = Modifier.padding(bottom = 3.dp)
+                        )
+                    }
+                    if (extra > 0) {
+                        Text(
+                            text = "额外打卡 $extra 项",
+                            fontSize = 10.5.sp,
+                            color = palette.text3,
+                            modifier = Modifier.padding(top = 4.dp)
                         )
                     }
                 }
@@ -154,7 +167,9 @@ fun HabitsScreen(
                     val color = habitColor(habit.color)
                     HabitCard(
                         habit = habit,
-                        checked = Stats.isChecked(habit, com.ritualfocus.app.util.Dates.key()),
+                        checked = Stats.isChecked(habit, com.ritualfocus.app.util.Dates.key(today)),
+                        scheduledToday = Stats.isScheduled(habit, today),
+                        scheduleLabel = Stats.scheduleLabel(habit),
                         streak = Stats.currentStreak(habit),
                         onOpen = { onOpenHabit(habit) },
                         onCheckIn = { center -> onCheckIn(habit, color, center) }
@@ -204,6 +219,8 @@ private fun EmptyHabits(onAdd: () -> Unit) {
 private fun HabitCard(
     habit: Habit,
     checked: Boolean,
+    scheduledToday: Boolean,
+    scheduleLabel: String,
     streak: Int,
     onOpen: () -> Unit,
     onCheckIn: (androidx.compose.ui.geometry.Offset) -> Unit
@@ -211,6 +228,7 @@ private fun HabitCard(
     val palette = LocalRfColors.current
     val color = habitColor(habit.color)
     var center by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
+    val extra = checked && !scheduledToday
 
     GlassCard(
         modifier = Modifier.fillMaxWidth(),
@@ -270,6 +288,18 @@ private fun HabitCard(
                         color = palette.text2
                     )
                 }
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    text = buildString {
+                        append(scheduleLabel)
+                        if (!scheduledToday) append(" · 今日休息")
+                        if (extra) append(" · 额外打卡")
+                    },
+                    fontSize = 10.5.sp,
+                    color = palette.text3,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
             Spacer(Modifier.width(10.dp))
             CheckInButton(
@@ -337,7 +367,12 @@ private fun CheckInButton(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HabitMenuSheet(habit: Habit, onDelete: () -> Unit, onDismiss: () -> Unit) {
+fun HabitMenuSheet(
+    habit: Habit,
+    onEditSchedule: () -> Unit,
+    onDelete: () -> Unit,
+    onDismiss: () -> Unit
+) {
     val palette = LocalRfColors.current
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -357,6 +392,24 @@ fun HabitMenuSheet(habit: Habit, onDelete: () -> Unit, onDismiss: () -> Unit) {
                 color = palette.text2,
                 modifier = Modifier.padding(vertical = 6.dp)
             )
+            RfDivider()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable { onEditSchedule() }
+                    .padding(horizontal = 6.dp, vertical = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("🗓\uFE0E", fontSize = 18.sp)
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    text = "修改打卡计划",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = palette.text
+                )
+            }
             RfDivider()
             Row(
                 modifier = Modifier

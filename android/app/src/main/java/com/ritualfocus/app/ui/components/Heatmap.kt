@@ -30,7 +30,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import com.ritualfocus.app.data.AppData
+import com.ritualfocus.app.data.Habit
 import com.ritualfocus.app.ui.theme.LocalRfColors
+import com.ritualfocus.app.ui.theme.RfPalette
 import com.ritualfocus.app.util.Dates
 import com.ritualfocus.app.util.Stats
 import kotlinx.coroutines.delay
@@ -41,7 +43,8 @@ data class HeatCell(
     val date: LocalDate?,
     val level: Int,
     val isFuture: Boolean,
-    val isToday: Boolean
+    val isToday: Boolean,
+    val isRest: Boolean = false
 )
 
 private val HabitCell = 10.dp
@@ -56,11 +59,27 @@ fun HeatCellView(cell: HeatCell, size: Dp, onClick: () -> Unit) {
         Modifier
             .size(size)
             .clip(shape)
-            .background(palette.heat[cell.level.coerceIn(0, palette.heat.lastIndex)])
+            .background(
+                if (cell.isRest) {
+                    palette.surfaceSoft.copy(alpha = if (palette.dark) 0.5f else 0.7f)
+                } else {
+                    palette.heat[cell.level.coerceIn(0, palette.heat.lastIndex)]
+                }
+            )
             .then(if (cell.isFuture) Modifier.alpha(0.3f) else Modifier)
             .then(if (cell.isToday) Modifier.border(1.5.dp, palette.accent, shape) else Modifier)
-            .clickable(enabled = cell.date != null && !cell.isFuture) { onClick() }
-    )
+            .clickable(enabled = cell.date != null && !cell.isFuture) { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        if (cell.isRest) {
+            Box(
+                Modifier
+                    .size(3.dp)
+                    .clip(androidx.compose.foundation.shape.CircleShape)
+                    .background(palette.text3.copy(alpha = 0.45f))
+            )
+        }
+    }
 }
 
 @Composable
@@ -139,7 +158,8 @@ fun HabitWeekHeatmap(
                                 date = date,
                                 level = Stats.habitLevel(data, date),
                                 isFuture = date.isAfter(today),
-                                isToday = date == today
+                                isToday = date == today,
+                                isRest = Stats.isRestDay(data, date)
                             ),
                             size = HabitCell
                         ) { onCellClick(date) }
@@ -267,35 +287,55 @@ fun HeatDetailPopup(
                         color = if (minutes > 0) palette.text else palette.text3
                     )
                 }
-            } else if (data.habits.isEmpty()) {
-                Text("暂无习惯", fontSize = 12.sp, color = palette.text3)
             } else {
-                data.habits.forEach { habit ->
-                    val checked = habit.checkInDates.contains(Dates.key(date))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(habit.icon, fontSize = 13.sp)
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            text = habit.name,
-                            fontSize = 12.sp,
-                            color = if (checked) palette.text else palette.text3,
-                            modifier = Modifier.weight(1f),
-                            maxLines = 1
-                        )
-                        Text(
-                            text = if (checked) "✓" else "—",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (checked) palette.success else palette.text3
-                        )
+                val scheduled = Stats.scheduledHabits(data, date)
+                val extras = data.habits.filter {
+                    !Stats.isScheduled(it, date) && it.checkInDates.contains(Dates.key(date))
+                }
+                if (scheduled.isEmpty() && extras.isEmpty()) {
+                    Text("休息日 · 今天没有安排", fontSize = 12.sp, color = palette.text3)
+                } else {
+                    scheduled.forEach { habit ->
+                        val checked = habit.checkInDates.contains(Dates.key(date))
+                        HabitDetailRow(habit, if (checked) "✓" else "—", checked, palette)
+                        Spacer(Modifier.height(2.dp))
                     }
-                    Spacer(Modifier.height(2.dp))
+                    extras.forEach { habit ->
+                        HabitDetailRow(habit, "额外", true, palette)
+                        Spacer(Modifier.height(2.dp))
+                    }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun HabitDetailRow(
+    habit: Habit,
+    trailing: String,
+    checked: Boolean,
+    palette: RfPalette
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(habit.icon, fontSize = 13.sp)
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text = habit.name,
+            fontSize = 12.sp,
+            color = if (checked) palette.text else palette.text3,
+            modifier = Modifier.weight(1f),
+            maxLines = 1
+        )
+        Text(
+            text = trailing,
+            fontSize = if (trailing == "额外") 10.sp else 12.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (checked) palette.success else palette.text3
+        )
     }
 }
 
@@ -311,7 +351,8 @@ private fun monthRows(month: YearMonth, data: AppData, today: LocalDate): List<L
                 date = date,
                 level = Stats.habitLevel(data, date),
                 isFuture = date.isAfter(today),
-                isToday = date == today
+                isToday = date == today,
+                isRest = Stats.isRestDay(data, date)
             )
         )
     }

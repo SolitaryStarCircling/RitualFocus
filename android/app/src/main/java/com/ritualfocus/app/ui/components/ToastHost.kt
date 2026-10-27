@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
@@ -27,7 +28,10 @@ import androidx.compose.ui.unit.sp
 fun ToastHost(message: String?, modifier: Modifier = Modifier) {
     val last = remember { mutableStateOf("") }
     if (!message.isNullOrEmpty()) last.value = message
-    Box(modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+    Box(
+        modifier.fillMaxSize().navigationBarsPadding(),
+        contentAlignment = Alignment.BottomCenter
+    ) {
         AnimatedVisibility(
             visible = !message.isNullOrEmpty(),
             enter = fadeIn(tween(180)) + slideInVertically(tween(220)) { it / 3 },
@@ -35,7 +39,7 @@ fun ToastHost(message: String?, modifier: Modifier = Modifier) {
         ) {
             Box(
                 Modifier
-                    .padding(bottom = 86.dp)
+                    .padding(bottom = 96.dp)
                     .clip(RoundedCornerShape(14.dp))
                     .background(Color(0xEB1E1E20))
                     .padding(horizontal = 22.dp, vertical = 12.dp)

@@ -67,16 +67,45 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
 
     /* ---------------- habits ---------------- */
 
-    fun addHabit(name: String, icon: String, color: String) {
+    fun addHabit(
+        name: String,
+        icon: String,
+        color: String,
+        scheduleType: String = "daily",
+        weekdays: Set<Int> = emptySet(),
+        intervalDays: Int = 2
+    ) {
+        val created = Dates.key()
         val habit = Habit(
             id = "h_" + UUID.randomUUID().toString().take(8),
             name = name.take(8),
             icon = icon,
             color = color,
-            createdAt = Dates.key(),
-            checkInDates = emptySet()
+            createdAt = created,
+            checkInDates = emptySet(),
+            scheduleType = scheduleType,
+            weekdays = weekdays,
+            intervalDays = intervalDays.coerceIn(2, 30),
+            scheduleAnchor = created
         )
         update { it.copy(habits = it.habits + habit) }
+    }
+
+    fun updateSchedule(id: String, scheduleType: String, weekdays: Set<Int>, intervalDays: Int) {
+        update { data ->
+            data.copy(habits = data.habits.map { habit ->
+                if (habit.id != id) {
+                    habit
+                } else {
+                    habit.copy(
+                        scheduleType = scheduleType,
+                        weekdays = weekdays,
+                        intervalDays = intervalDays.coerceIn(2, 30),
+                        scheduleAnchor = habit.createdAt
+                    )
+                }
+            })
+        }
     }
 
     fun deleteHabit(id: String) {

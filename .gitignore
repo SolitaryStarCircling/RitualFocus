@@ -19,5 +19,12 @@ Thumbs.db
 
 # 本地工具与中间产物
 .trae/
+.workbuddy/
 .screenshots/
 dist/
+
+# 签名材料（禁止提交）
+keystore.properties
+keystore/
+*.jks
+*.keystore
