@@ -1,0 +1,2918 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#eef2f8">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>RitualFocus</title>
+<style>
+/* ============================================================
+   1. 共享 Tokens（浅色 / 深色统一命名）
+   ============================================================ */
+:root {
+  --bg: #eef2f8;
+  --blob-1: rgba(88, 156, 255, 0.42);
+  --blob-2: rgba(150, 108, 255, 0.35);
+  --blob-3: rgba(255, 152, 102, 0.28);
+  --blob-4: rgba(102, 214, 255, 0.32);
+
+  --glass-bg: rgba(255, 255, 255, 0.58);
+  --glass-bg-strong: rgba(255, 255, 255, 0.82);
+  --glass-bg-subtle: rgba(255, 255, 255, 0.38);
+  --glass-border: rgba(255, 255, 255, 0.85);
+  --glass-border-subtle: rgba(255, 255, 255, 0.6);
+  --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.1), 0 2px 8px rgba(0, 0, 0, 0.04);
+  --glass-shadow-lg: 0 16px 48px rgba(31, 38, 135, 0.14), 0 4px 12px rgba(0, 0, 0, 0.06);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+
+  --text: #1c1c1e;
+  --text2: #6e6e78;
+  --text3: #a0a0aa;
+
+  --accent: #007aff;
+  --accent-2: #4a9eff;
+  --accent-glow: rgba(0, 122, 255, 0.35);
+  --accent-soft: rgba(0, 122, 255, 0.12);
+
+  --success: #34c759;
+  --warning: #ff9500;
+  --danger: #ff3b30;
+
+  --separator: rgba(60, 60, 67, 0.12);
+  --surface-1: rgba(255, 255, 255, 0.4);
+  --surface-2: rgba(255, 255, 255, 0.5);
+  --surface-3: rgba(255, 255, 255, 0.6);
+  --surface-4: rgba(255, 255, 255, 0.7);
+  --surface-solid: #ffffff;
+  --surface-soft: rgba(120, 120, 128, 0.1);
+  --surface-soft-2: rgba(120, 120, 128, 0.12);
+  --tooltip-bg: rgba(255, 255, 255, 0.96);
+  --divider: rgba(60, 60, 67, 0.1);
+
+  --heat-0: #e6e9ef;
+  --heat-1: #9be9a8;
+  --heat-2: #40c463;
+  --heat-3: #2ea14c;
+  --heat-4: #166b39;
+
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+
+  --cell-size: 11px;
+  --cell-gap: 3px;
+  --cell-radius: 3px;
+}
+
+body.dark {
+  --bg: #0a0a12;
+  --blob-1: rgba(64, 128, 255, 0.28);
+  --blob-2: rgba(140, 92, 255, 0.24);
+  --blob-3: rgba(255, 130, 80, 0.18);
+  --blob-4: rgba(80, 200, 255, 0.2);
+
+  --glass-bg: rgba(28, 28, 36, 0.62);
+  --glass-bg-strong: rgba(28, 28, 36, 0.86);
+  --glass-bg-subtle: rgba(40, 40, 48, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border-subtle: rgba(255, 255, 255, 0.06);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 2px 8px rgba(0, 0, 0, 0.2);
+  --glass-shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.55), 0 4px 12px rgba(0, 0, 0, 0.3);
+  --glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.07);
+
+  --text: #f5f5f7;
+  --text2: #98989d;
+  --text3: #6a6a70;
+
+  --accent: #0a84ff;
+  --accent-2: #5aa6ff;
+  --accent-glow: rgba(10, 132, 255, 0.45);
+  --accent-soft: rgba(10, 132, 255, 0.15);
+
+  --separator: rgba(84, 84, 88, 0.5);
+  --surface-1: rgba(255, 255, 255, 0.06);
+  --surface-2: rgba(255, 255, 255, 0.07);
+  --surface-3: rgba(255, 255, 255, 0.08);
+  --surface-4: rgba(255, 255, 255, 0.1);
+  --surface-solid: rgba(255, 255, 255, 0.12);
+  --surface-soft: rgba(120, 120, 128, 0.2);
+  --surface-soft-2: rgba(120, 120, 128, 0.22);
+  --tooltip-bg: rgba(40, 40, 48, 0.97);
+  --divider: rgba(255, 255, 255, 0.09);
+
+  --heat-0: rgba(255, 255, 255, 0.06);
+  --heat-1: #0d5233;
+  --heat-2: #0f7a44;
+  --heat-3: #16a34a;
+  --heat-4: #34d399;
+}
+
+/* 休息模式配色 */
+body.mode-break {
+  --accent: #ff9500;
+  --accent-2: #ffb143;
+  --accent-glow: rgba(255, 149, 0, 0.4);
+  --accent-soft: rgba(255, 149, 0, 0.14);
+}
+body.dark.mode-break {
+  --accent: #ffa726;
+  --accent-2: #ffc06a;
+  --accent-glow: rgba(255, 167, 38, 0.45);
+  --accent-soft: rgba(255, 167, 38, 0.16);
+}
+
+/* ============================================================
+   2. 基础重置
+   ============================================================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+               "PingFang SC", "Helvetica Neue", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+html, body { min-height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  position: relative;
+  isolation: isolate;
+  overflow-x: hidden;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: calc(72px + env(safe-area-inset-bottom));
+  transition: background 0.4s ease, color 0.3s ease;
+}
+
+button, input { font-family: inherit; }
+button { cursor: pointer; border: none; background: none; color: inherit; }
+input { outline: none; }
+
+/* ============================================================
+   3. 背景光斑
+   ============================================================ */
+.bg-decor {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+.bg-decor * { pointer-events: none !important; }
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.9;
+  will-change: transform;
+}
+.blob-1 {
+  width: 520px; height: 520px;
+  background: radial-gradient(circle, var(--blob-1) 0%, transparent 70%);
+  top: -140px; left: -140px;
+  animation: float1 22s ease-in-out infinite;
+}
+.blob-2 {
+  width: 460px; height: 460px;
+  background: radial-gradient(circle, var(--blob-2) 0%, transparent 70%);
+  top: -80px; right: -120px;
+  animation: float2 26s ease-in-out infinite;
+}
+.blob-3 {
+  width: 480px; height: 480px;
+  background: radial-gradient(circle, var(--blob-3) 0%, transparent 70%);
+  bottom: -140px; left: -100px;
+  animation: float3 24s ease-in-out infinite;
+}
+.blob-4 {
+  width: 420px; height: 420px;
+  background: radial-gradient(circle, var(--blob-4) 0%, transparent 70%);
+  bottom: -100px; right: -100px;
+  animation: float4 28s ease-in-out infinite;
+}
+@keyframes float1 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(70px, 50px) scale(1.08); }
+  66% { transform: translate(30px, 90px) scale(0.96); }
+}
+@keyframes float2 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-80px, 70px) scale(1.1); }
+}
+@keyframes float3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(60px, -60px) scale(1.05); }
+}
+@keyframes float4 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-60px, -50px) scale(0.94); }
+}
+
+/* ============================================================
+   4. 顶部导航（统一三栏）
+   ============================================================ */
+.nav-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 54px;
+  padding: 0 14px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border-bottom: 0.5px solid var(--glass-border-subtle);
+  box-shadow: var(--glass-inset);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+.nav-side { display: flex; align-items: center; gap: 8px; }
+.nav-side.start { justify-self: start; }
+.nav-side.end { justify-self: end; }
+
+.nav-title {
+  justify-self: center;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+
+.nav-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface-1);
+  border: 0.5px solid var(--glass-border-subtle);
+  color: var(--text);
+  font-size: 17px;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+}
+.nav-btn:active { transform: scale(0.88); }
+.nav-btn svg { width: 20px; height: 20px; }
+
+/* ============================================================
+   5. 页面容器
+   ============================================================ */
+.page-container {
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 18px 16px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.page { display: none; }
+.page.active {
+  display: block;
+  animation: pageIn 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================================================
+   6. 毛玻璃卡片
+   ============================================================ */
+.glass-card {
+  position: relative;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.card-decor {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  border-radius: inherit;
+}
+.card-decor * { pointer-events: none; }
+.card-content { position: relative; z-index: 1; }
+
+/* ============================================================
+   7. 统计卡（统一毛玻璃 + 光晕）
+   ============================================================ */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 22px;
+}
+.stats-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+
+.stat-card {
+  position: relative;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+  padding: 16px 8px 14px;
+  text-align: center;
+  overflow: hidden;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+.stat-card-glow {
+  position: absolute;
+  top: -56px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+  pointer-events: none;
+}
+.stat-value {
+  position: relative;
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 5px;
+  letter-spacing: -0.5px;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.stat-label {
+  position: relative;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+  color: var(--text2);
+}
+
+/* ============================================================
+   8. 区块 / 习惯页
+   ============================================================ */
+.section { margin-bottom: 24px; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding: 0 4px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+.section-title::before {
+  content: '';
+  width: 3px;
+  height: 15px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #007aff, #4a9eff);
+}
+
+.add-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  padding: 4px 10px;
+  border-radius: 10px;
+  transition: background 0.15s;
+}
+.add-link:active { background: var(--accent-soft); }
+
+/* 今日概览 */
+.today-card { padding: 18px; margin-bottom: 22px; }
+.today-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.today-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text3);
+  margin-bottom: 6px;
+}
+.today-count {
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
+}
+.today-count small {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text3);
+  margin-left: 4px;
+  letter-spacing: 0;
+}
+.today-streak {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 6px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.today-bar {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--surface-soft);
+  overflow: hidden;
+}
+.today-bar-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  box-shadow: 0 0 12px var(--accent-glow);
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 习惯卡片 */
+.habits-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.habit-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              background 0.3s ease, border-color 0.3s ease;
+}
+.habit-card::before {
+  content: '';
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--hc-soft, rgba(0,122,255,0.18)) 0%, transparent 70%);
+  pointer-events: none;
+  opacity: 0.9;
+}
+.habit-card:active { transform: scale(0.985); }
+
+.habit-icon {
+  position: relative;
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  line-height: 1;
+  background: var(--hc-bg, rgba(0,122,255,0.15));
+  box-shadow: 0 3px 10px -3px var(--hc-shadow, rgba(0,122,255,0.4));
+}
+.habit-info { position: relative; flex: 1; min-width: 0; }
+.habit-name {
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.habit-streak {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text2);
+  font-weight: 500;
+}
+.streak-num {
+  display: inline-block;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--hc, #007aff);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.4px;
+}
+.streak-num.bump { animation: bumpNum 0.55s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes bumpNum {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.5); }
+  60% { transform: scale(0.9); }
+  100% { transform: scale(1); }
+}
+.habit-badge {
+  display: inline-block;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #ffd700, #ff9500);
+  padding: 2px 6px;
+  border-radius: 6px;
+  margin-left: 6px;
+  letter-spacing: 0.3px;
+  vertical-align: middle;
+  box-shadow: 0 2px 6px rgba(255, 149, 0, 0.4);
+}
+
+.checkin-btn {
+  position: relative;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--hc, #007aff);
+  background: var(--surface-4);
+  border: 2px solid var(--hc-border, rgba(0,122,255,0.35));
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  user-select: none;
+  z-index: 1;
+}
+.checkin-btn:active { transform: scale(0.85); }
+.checkin-btn.checked {
+  background: linear-gradient(135deg, var(--hc, #007aff), var(--hc-2, #4a9eff));
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 6px 18px -4px var(--hc-shadow, rgba(0,122,255,0.55));
+  animation: checkPop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes checkPop {
+  0% { transform: scale(0.6); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* 空状态 */
+.empty-state {
+  grid-column: 1 / -1;
+  width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
+  text-align: center;
+  padding: 46px 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+  position: relative;
+  overflow: hidden;
+}
+.empty-state::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+  pointer-events: none;
+}
+.empty-icon { font-size: 52px; line-height: 1; margin-bottom: 14px; position: relative; }
+.empty-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 6px;
+  position: relative;
+  letter-spacing: -0.2px;
+}
+.empty-desc {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.6;
+  margin-bottom: 20px;
+  position: relative;
+}
+.empty-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 24px;
+  border-radius: 14px;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 8px 22px -6px var(--accent-glow);
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+.empty-btn:active { transform: scale(0.96); }
+
+/* ============================================================
+   9. 热力图
+   ============================================================ */
+.view-toggle {
+  display: flex;
+  background: var(--surface-soft);
+  border-radius: 10px;
+  padding: 2px;
+  gap: 2px;
+}
+.view-tab {
+  padding: 5px 14px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text2);
+  border-radius: 8px;
+  transition: all 0.25s ease;
+}
+.view-tab.active {
+  background: var(--surface-solid);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.heatmap-card {
+  position: relative;
+  padding: 18px 16px 14px;
+  border-radius: var(--radius-lg);
+}
+.heatmap-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+.heatmap-title-bar {
+  width: 4px;
+  height: 16px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-2));
+  flex-shrink: 0;
+}
+.heatmap-scroll {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 2px 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 120, 128, 0.35) transparent;
+}
+.heatmap-scroll::-webkit-scrollbar { height: 6px; }
+.heatmap-scroll::-webkit-scrollbar-track { background: transparent; }
+.heatmap-scroll::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 128, 0.32);
+  border-radius: 3px;
+}
+
+/* 月视图 */
+.hm-months { display: inline-flex; gap: 14px; padding: 2px; }
+.hm-month { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+.hm-month-label {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text3);
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+.hm-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 10px);
+  gap: 2px;
+}
+
+/* 周视图 */
+.hm-weeks { display: inline-flex; gap: 5px; padding: 2px; }
+.hm-week-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.hm-week-cells { display: flex; flex-direction: column; gap: 2px; }
+.hm-week-label {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--text3);
+  margin-top: 4px;
+  letter-spacing: 0.2px;
+}
+
+/* 格子 */
+.hm-cell {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--heat-0);
+  cursor: pointer;
+  transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.15s, background 0.3s ease;
+}
+.hm-cell.lv-1 { background: var(--heat-1); }
+.hm-cell.lv-2 { background: var(--heat-2); }
+.hm-cell.lv-3 { background: var(--heat-3); }
+.hm-cell.lv-4 { background: var(--heat-4); }
+.hm-cell.empty { visibility: hidden; pointer-events: none; }
+.hm-cell.future { opacity: 0.28; pointer-events: none; }
+.hm-cell.today { box-shadow: 0 0 0 1.5px var(--accent), 0 0 0 3px var(--accent-soft); }
+.hm-cell:hover {
+  transform: scale(1.5);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 5;
+  position: relative;
+}
+
+/* 年度专注热力图 */
+.heatmap-grid {
+  display: grid;
+  grid-template-rows: repeat(7, var(--cell-size));
+  grid-auto-flow: column;
+  grid-auto-columns: var(--cell-size);
+  gap: var(--cell-gap);
+  width: max-content;
+  touch-action: pan-x;
+  overscroll-behavior-x: contain;
+}
+.heatmap-cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border-radius: var(--cell-radius);
+  background: var(--heat-0);
+  border: 0.5px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+}
+.heatmap-cell.level-1 { background: var(--heat-1); }
+.heatmap-cell.level-2 { background: var(--heat-2); }
+.heatmap-cell.level-3 { background: var(--heat-3); }
+.heatmap-cell.level-4 { background: var(--heat-4); }
+.heatmap-cell:hover {
+  transform: scale(1.45);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  position: relative;
+  z-index: 2;
+}
+
+/* 图例 */
+.heatmap-legend {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5px;
+  margin-top: 10px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: var(--text3);
+}
+.lg {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  display: inline-block;
+}
+.lg.lv-0 { background: var(--heat-0); }
+.lg.lv-1 { background: var(--heat-1); }
+.lg.lv-2 { background: var(--heat-2); }
+.lg.lv-3 { background: var(--heat-3); }
+.lg.lv-4 { background: var(--heat-4); }
+
+/* ============================================================
+   10. 底部标签栏
+   ============================================================ */
+.tab-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(60px + env(safe-area-inset-bottom));
+  padding-bottom: env(safe-area-inset-bottom);
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(30px) saturate(180%);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  border-top: 0.5px solid var(--glass-border-subtle);
+  display: flex;
+  z-index: 100;
+  box-shadow: 0 -1px 0 var(--separator), var(--glass-inset);
+}
+.tab-item {
+  flex: 1;
+  border: none;
+  background: none;
+  color: var(--text3);
+  font-size: 10.5px;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  letter-spacing: 0.2px;
+  position: relative;
+  z-index: 2;
+  transition: color 0.3s ease;
+}
+.tab-item.active { color: var(--accent); }
+.tab-item.active .tab-icon {
+  transform: translateY(-1px);
+  filter: drop-shadow(0 2px 6px var(--accent-glow));
+}
+.tab-icon {
+  font-size: 20px;
+  line-height: 1;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s;
+}
+
+/* ============================================================
+   11. 底部弹层 / 菜单 / 表单
+   ============================================================ */
+.sheet-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 300;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+.sheet-mask.show { opacity: 1; pointer-events: auto; }
+
+.sheet {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  width: 100%;
+  max-width: 520px;
+  transform: translate(-50%, 100%);
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  border-top: 0.5px solid var(--glass-border);
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18);
+  padding: 20px 18px calc(20px + env(safe-area-inset-bottom));
+  z-index: 301;
+  transition: transform 0.38s cubic-bezier(0.32, 0.72, 0, 1);
+  max-height: 86vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.sheet.show { transform: translate(-50%, 0); }
+
+.sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.sheet-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+.sheet-close {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 7px 15px;
+  border-radius: 12px;
+  transition: transform 0.2s;
+}
+.sheet-close:active { transform: scale(0.94); }
+
+.field { margin-bottom: 18px; }
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+  margin-bottom: 8px;
+  letter-spacing: 0.2px;
+}
+.field input[type="text"] {
+  width: 100%;
+  padding: 13px 15px;
+  font-size: 15px;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--glass-border-subtle);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.2s, background 0.2s;
+}
+.field input[type="text"]::placeholder { color: var(--text3); }
+.field input[type="text"]:focus {
+  border-color: var(--accent);
+  background: var(--surface-3);
+}
+
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+}
+.icon-opt {
+  aspect-ratio: 1;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  background: var(--surface-2);
+  border: 1.5px solid transparent;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s;
+}
+.icon-opt:active { transform: scale(0.9); }
+.icon-opt.active {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  transform: scale(1.06);
+}
+
+.color-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.color-opt {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 2.5px solid transparent;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25) inset;
+}
+.color-opt:active { transform: scale(0.88); }
+.color-opt.active {
+  border-color: var(--surface-solid);
+  box-shadow: 0 0 0 2px currentColor, 0 4px 12px -2px currentColor;
+  transform: scale(1.12);
+}
+
+.sheet-actions { display: flex; gap: 10px; margin-top: 4px; }
+.sheet-actions .btn { flex: 1; min-width: 0; }
+
+.btn {
+  position: relative;
+  padding: 14px 26px;
+  border-radius: var(--radius-md);
+  font-size: 15.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s, background 0.2s;
+  user-select: none;
+}
+.btn:active { transform: scale(0.96); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+  color: #fff;
+  border: 0.5px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 6px 20px var(--accent-glow), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.btn-secondary {
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: var(--text);
+  border: 0.5px solid var(--glass-border);
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+}
+.btn-ghost {
+  background: var(--surface-soft);
+  color: var(--text2);
+  border: 1px solid var(--glass-border-subtle);
+}
+
+/* 设置行 */
+.setting-group {
+  background: var(--surface-2);
+  border: 1px solid var(--glass-border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.setting-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 16px;
+  border-bottom: 0.5px solid var(--separator);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text);
+}
+.setting-item:last-child { border-bottom: none; }
+.setting-input {
+  width: 92px;
+  text-align: right;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.setting-hint {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text3);
+  padding: 0 6px;
+  margin: -6px 0 16px;
+}
+
+.segmented {
+  display: flex;
+  gap: 4px;
+  background: var(--surface-soft);
+  border-radius: 12px;
+  padding: 3px;
+}
+.segmented button {
+  flex: 1;
+  padding: 9px 0;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  transition: all 0.25s ease;
+}
+.segmented button.active {
+  background: var(--surface-solid);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+/* 操作菜单 */
+.menu-mask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 400;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+.menu-mask.show { opacity: 1; pointer-events: auto; }
+
+.bottom-menu {
+  position: fixed;
+  left: 50%;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  width: calc(100% - 24px);
+  max-width: 420px;
+  transform: translate(-50%, 130%);
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(40px) saturate(200%);
+  -webkit-backdrop-filter: blur(40px) saturate(200%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow-lg);
+  padding: 8px;
+  z-index: 401;
+  transition: transform 0.34s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.bottom-menu.show { transform: translate(-50%, 0); }
+
+.menu-head {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text3);
+  text-align: center;
+  padding: 8px 4px 10px;
+  border-bottom: 0.5px solid var(--separator);
+  margin-bottom: 6px;
+  letter-spacing: 0.2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 14px 12px;
+  border-radius: 13px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  transition: background 0.18s;
+}
+.menu-item:active { background: var(--surface-soft); }
+.menu-item.cancel { color: var(--text2); font-weight: 500; }
+.menu-item.danger { color: var(--danger); }
+.menu-item.danger:active { background: rgba(255, 59, 48, 0.12); }
+.menu-item svg { width: 18px; height: 18px; }
+
+/* ============================================================
+   12. Tooltip / Toast / 粒子 / 徽章
+   ============================================================ */
+.tooltip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  min-width: 168px;
+  max-width: 240px;
+  padding: 11px 12px;
+  background: var(--tooltip-bg);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease;
+  z-index: 500;
+}
+.tooltip.show { opacity: 1; }
+.tt-date {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text);
+  padding-bottom: 7px;
+  margin-bottom: 7px;
+  border-bottom: 0.5px solid var(--separator);
+  letter-spacing: 0.2px;
+}
+.tt-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 0;
+  font-size: 12px;
+  color: var(--text3);
+}
+.tt-item.checked { color: var(--text); }
+.tt-icon { font-size: 13px; flex-shrink: 0; }
+.tt-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tt-check { font-weight: 800; color: var(--text3); font-size: 12px; }
+.tt-item.checked .tt-check { color: var(--success); }
+.tt-empty {
+  text-align: center;
+  color: var(--text3);
+  font-size: 12px;
+  padding: 4px 0;
+  font-style: italic;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom) + 82px);
+  transform: translateX(-50%) translateY(14px) scale(0.95);
+  padding: 12px 22px;
+  background: rgba(30, 30, 32, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 600;
+  border-radius: 14px;
+  box-shadow: 0 10px 30px -8px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s, transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 600;
+  white-space: nowrap;
+  max-width: 86vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+
+.particle {
+  position: fixed;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 550;
+  transition: transform 0.65s cubic-bezier(0.2, 0.7, 0.3, 1), opacity 0.65s ease-out;
+  will-change: transform, opacity;
+}
+.ripple-effect {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid currentColor;
+  transform: translate(-50%, -50%) scale(0);
+  pointer-events: none;
+  z-index: 549;
+  animation: rippleExpand 0.65s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+@keyframes rippleExpand {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0.9; }
+  100% { transform: translate(-50%, -50%) scale(6); opacity: 0; }
+}
+.confetti-piece {
+  position: fixed;
+  width: 9px;
+  height: 14px;
+  pointer-events: none;
+  z-index: 550;
+  animation: confettiFall linear forwards;
+  will-change: transform, opacity;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(-30px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(105vh) rotate(720deg); opacity: 0.3; }
+}
+
+.badge-popup {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%) scale(0.5);
+  z-index: 700;
+  background: linear-gradient(135deg, #ffd700 0%, #ff9500 100%);
+  color: #fff;
+  padding: 24px 30px;
+  border-radius: 24px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(255, 149, 0, 0.5), 0 0 0 6px rgba(255, 255, 255, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.badge-popup.show { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+.badge-icon { font-size: 48px; line-height: 1; margin-bottom: 8px; }
+.badge-title { font-size: 16px; font-weight: 800; letter-spacing: 0.3px; }
+.badge-sub { font-size: 12px; opacity: 0.9; margin-top: 4px; font-weight: 500; }
+
+/* ============================================================
+   13. 专注页
+   ============================================================ */
+.timer-card { padding: 36px 20px 30px; margin-bottom: 18px; }
+.card-glow-top {
+  position: absolute;
+  top: -150px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-soft) 0%, transparent 65%);
+  pointer-events: none;
+  transition: background 0.6s ease;
+}
+.mode-badge-wrap { text-align: center; margin-bottom: 24px; }
+.mode-badge {
+  display: inline-block;
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border: 0.5px solid var(--glass-border-subtle);
+  transition: all 0.4s ease;
+}
+
+.timer-ring-wrap {
+  position: relative;
+  width: 260px;
+  height: 260px;
+  margin: 0 auto 28px;
+}
+.ring-glow {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--accent-glow) 0%, transparent 60%);
+  opacity: 0.55;
+  filter: blur(20px);
+  pointer-events: none;
+  transition: opacity 0.4s ease, background 0.6s ease;
+}
+body.running .ring-glow { opacity: 0.85; animation: pulseGlow 2s ease-in-out infinite; }
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.95; transform: scale(1.06); }
+}
+.timer-ring {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: conic-gradient(from -90deg,
+    var(--accent) calc(var(--progress, 100) * 1%),
+    var(--separator) 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.4s ease;
+  filter: drop-shadow(0 4px 20px var(--accent-glow));
+  pointer-events: none;
+}
+.timer-ring-inner {
+  width: 216px;
+  height: 216px;
+  border-radius: 50%;
+  background: var(--glass-bg-strong);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: inset 0 2px 12px rgba(255, 255, 255, 0.4), inset 0 -2px 12px rgba(0, 0, 0, 0.04);
+  transition: background 0.4s ease;
+}
+.time-display {
+  font-size: 64px;
+  font-weight: 200;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -2.5px;
+  line-height: 1;
+  background: linear-gradient(180deg, var(--text) 0%, var(--text2) 130%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.time-subtitle {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text3);
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+}
+.controls {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+.controls .btn { min-width: 112px; }
+.focus-today {
+  text-align: center;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text2);
+  margin: -8px 0 22px;
+  position: relative;
+  z-index: 2;
+}
+.focus-tip {
+  text-align: center;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--text3);
+  margin-top: 16px;
+}
+
+/* ============================================================
+   14. 响应式
+   ============================================================ */
+@media (min-width: 540px) {
+  .habits-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 420px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .stats-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .timer-card { padding: 30px 16px 26px; }
+  .timer-ring-wrap { width: 228px; height: 228px; }
+  .timer-ring-inner { width: 188px; height: 188px; }
+  .time-display { font-size: 54px; letter-spacing: -2px; }
+  .icon-grid { grid-template-columns: repeat(8, 1fr); gap: 4px; }
+  .icon-opt { font-size: 16px; border-radius: 9px; }
+}
+@media (max-width: 360px) {
+  .stat-value { font-size: 19px; }
+  .stat-label { font-size: 10px; }
+  .today-count { font-size: 22px; }
+  .controls .btn { min-width: 96px; padding: 13px 18px; font-size: 15px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .blob { animation: none !important; }
+  .page.active { animation: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- 背景光斑 -->
+<div class="bg-decor" aria-hidden="true">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+</div>
+
+<!-- 顶部导航 -->
+<header class="nav-bar">
+  <div class="nav-side start">
+    <button class="nav-btn" id="themeBtn" type="button" title="切换主题">
+      <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </div>
+  <span class="nav-title" id="navTitle">习惯</span>
+  <div class="nav-side end">
+    <button class="nav-btn" id="settingsBtn" type="button" title="设置">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"
+           stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h.01a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h.01a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v.01a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<main class="page-container">
+
+  <!-- ============ 习惯页 ============ -->
+  <section class="page active" id="pageHabits">
+    <div class="today-card glass-card">
+      <div class="card-decor" aria-hidden="true"></div>
+      <div class="card-content">
+        <div class="today-row">
+          <div>
+            <div class="today-label">今天</div>
+            <div class="today-count"><span id="todayDone">0</span><small id="todayTotal">/ 0 已完成</small></div>
+          </div>
+          <div class="today-streak" id="todayStreak">连续 0 天</div>
+        </div>
+        <div class="today-bar"><div class="today-bar-fill" id="todayBarFill"></div></div>
+      </div>
+    </div>
+
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">我的习惯</h2>
+        <button class="add-link" id="addBtn" type="button">+ 添加</button>
+      </div>
+      <div class="habits-grid" id="habitsGrid"></div>
+    </section>
+  </section>
+
+  <!-- ============ 专注页 ============ -->
+  <section class="page" id="pageFocus">
+    <div class="timer-card glass-card">
+      <div class="card-decor" aria-hidden="true"><div class="card-glow-top"></div></div>
+      <div class="card-content">
+        <div class="mode-badge-wrap">
+          <span class="mode-badge" id="modeBadge">专注模式</span>
+        </div>
+
+        <div class="timer-ring-wrap">
+          <div class="ring-glow" aria-hidden="true"></div>
+          <div class="timer-ring" id="timerRing" style="--progress:100">
+            <div class="timer-ring-inner">
+              <div class="time-display" id="timeDisplay">25:00</div>
+              <div class="time-subtitle" id="timeSubtitle">剩余时间</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="focus-today" id="focusToday">今日已专注 0 分钟</div>
+
+        <div class="controls">
+          <button class="btn btn-primary" id="startBtn" type="button">开始</button>
+          <button class="btn btn-secondary" id="resetBtn" type="button">重置</button>
+        </div>
+      </div>
+    </div>
+    <div class="focus-tip">专注结束后自动进入休息，休息结束回到专注<br>空格键可开始 / 暂停</div>
+  </section>
+
+  <!-- ============ 统计页 ============ -->
+  <section class="page" id="pageStats">
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-glow" aria-hidden="true"></div>
+        <div class="stat-value" id="statFocus">0</div>
+        <div class="stat-label">今日专注(分)</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-glow" aria-hidden="true"></div>
+        <div class="stat-value" id="statToday">0/0</div>
+        <div class="stat-label">今日打卡</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-glow" aria-hidden="true"></div>
+        <div class="stat-value" id="statStreak">0</div>
+        <div class="stat-label">最长连续</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-glow" aria-hidden="true"></div>
+        <div class="stat-value" id="statRate">0%</div>
+        <div class="stat-label">本月完成率</div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">打卡记录</h2>
+        <div class="view-toggle">
+          <button class="view-tab active" data-view="month" type="button">月</button>
+          <button class="view-tab" data-view="week" type="button">周</button>
+        </div>
+      </div>
+      <div class="heatmap-card glass-card">
+        <div class="heatmap-scroll" id="habitHeatmap"></div>
+        <div class="heatmap-legend">
+          <span>少</span>
+          <span class="lg lv-0"></span>
+          <span class="lg lv-1"></span>
+          <span class="lg lv-2"></span>
+          <span class="lg lv-3"></span>
+          <span class="lg lv-4"></span>
+          <span>多</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">专注记录</h2>
+        <span class="add-link" id="focusTotal">共 0 分钟</span>
+      </div>
+      <div class="heatmap-card glass-card">
+        <div class="heatmap-scroll" id="focusScroll">
+          <div class="heatmap-grid" id="focusHeatmap"></div>
+        </div>
+        <div class="heatmap-legend">
+          <span>少</span>
+          <span class="lg lv-0"></span>
+          <span class="lg lv-1"></span>
+          <span class="lg lv-2"></span>
+          <span class="lg lv-3"></span>
+          <span class="lg lv-4"></span>
+          <span>多</span>
+        </div>
+      </div>
+    </section>
+  </section>
+
+</main>
+
+<!-- 底部标签栏 -->
+<nav class="tab-bar">
+  <button class="tab-item active" data-tab="habits" type="button">
+    <span class="tab-icon">✅</span>
+    <span>习惯</span>
+  </button>
+  <button class="tab-item" data-tab="focus" type="button">
+    <span class="tab-icon">⏱️</span>
+    <span>专注</span>
+  </button>
+  <button class="tab-item" data-tab="stats" type="button">
+    <span class="tab-icon">📊</span>
+    <span>统计</span>
+  </button>
+</nav>
+
+<!-- 添加习惯 -->
+<div class="sheet-mask" id="addMask"></div>
+<div class="sheet" id="addSheet">
+  <div class="sheet-head">
+    <span class="sheet-title">添加习惯</span>
+    <button class="sheet-close" id="addCloseBtn" type="button">取消</button>
+  </div>
+  <div class="field">
+    <label class="field-label" for="habitNameInput">名称</label>
+    <input type="text" id="habitNameInput" placeholder="例如：冥想" maxlength="8" autocomplete="off">
+  </div>
+  <div class="field">
+    <label class="field-label">图标</label>
+    <div class="icon-grid" id="iconGrid"></div>
+  </div>
+  <div class="field">
+    <label class="field-label">颜色</label>
+    <div class="color-row" id="colorRow"></div>
+  </div>
+  <div class="sheet-actions">
+    <button class="btn btn-ghost" id="addCancelBtn" type="button">取消</button>
+    <button class="btn btn-primary" id="addConfirmBtn" type="button">添加</button>
+  </div>
+</div>
+
+<!-- 习惯操作 -->
+<div class="menu-mask" id="habitMenuMask"></div>
+<div class="bottom-menu" id="habitMenu">
+  <div class="menu-head" id="habitMenuHead">习惯</div>
+  <button class="menu-item danger" data-habit-action="delete" type="button">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+      <line x1="10" y1="11" x2="10" y2="17"/>
+      <line x1="14" y1="11" x2="14" y2="17"/>
+    </svg>
+    删除这个习惯
+  </button>
+  <button class="menu-item cancel" data-habit-action="cancel" type="button">取消</button>
+</div>
+
+<!-- 设置 -->
+<div class="sheet-mask" id="settingsMask"></div>
+<div class="sheet" id="settingsSheet">
+  <div class="sheet-head">
+    <span class="sheet-title">设置</span>
+    <button class="sheet-close" id="settingsDoneBtn" type="button">完成</button>
+  </div>
+
+  <div class="field">
+    <label class="field-label">专注时长</label>
+    <div class="setting-group">
+      <div class="setting-item">
+        <span>专注</span>
+        <input type="number" class="setting-input" id="focusInput" min="10" max="90" step="5" inputmode="numeric" value="25">
+      </div>
+      <div class="setting-item">
+        <span>休息</span>
+        <input type="number" class="setting-input" id="breakInput" min="10" max="90" step="5" inputmode="numeric" value="5">
+      </div>
+    </div>
+    <div class="setting-hint">范围 10 - 90 分钟，未开始计时时立即生效</div>
+  </div>
+
+  <div class="field">
+    <label class="field-label">主题</label>
+    <div class="segmented" id="themeSegmented">
+      <button data-theme="system" type="button">跟随系统</button>
+      <button data-theme="light" type="button">浅色</button>
+      <button data-theme="dark" type="button">深色</button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label class="field-label">导出数据</label>
+    <div class="sheet-actions">
+      <button class="btn btn-secondary" data-export="json" type="button">导出 JSON</button>
+      <button class="btn btn-secondary" data-export="csv" type="button">导出 CSV</button>
+    </div>
+  </div>
+</div>
+
+<!-- 浮动提示 / Toast / 徽章 -->
+<div class="tooltip" id="tooltip"></div>
+<div class="badge-popup" id="badgePopup">
+  <div class="badge-icon">🏆</div>
+  <div class="badge-title">30 天成就</div>
+  <div class="badge-sub" id="badgeSub"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+
+<script>
+(function () {
+  'use strict';
+
+  /* ==========================================================
+     Store
+     ========================================================== */
+  var STORAGE_KEY = 'ritualfocus:v1';
+  var LEGACY = {
+    habits: 'habit-tracker-data',
+    records: 'pomodoro_records_v2',
+    settings: 'pomodoro_settings_v2',
+    themeHabit: 'habit-tracker-theme',
+    themeFocus: 'pomodoro_theme_v2'
+  };
+
+  var ICONS = ['🧘', '📚', '🏃', '💧', '🌙', '✍️', '🎧', '🥗',
+               '💪', '🧠', '🌱', '☀️', '🚴', '🎨', '🧹', '🛏️',
+               '📝', '🎯', '💊', '☕', '🐕', '🎸', '🧴', '🪥',
+               '📖', '💡', '🌊', '🍎', '🕯️', '🧘‍♂️', '🏊', '🎮'];
+
+  var COLORS = ['#007AFF', '#5856D6', '#AF52DE', '#FF2D55', '#FF9500', '#FFCC00',
+                '#34C759', '#00C7BE', '#30B0C7', '#A2845E', '#FF6482', '#8E8E93'];
+
+  function pad2(n) { return String(n).padStart(2, '0'); }
+
+  function dateKey(d) {
+    d = d || new Date();
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+
+  function parseKey(key) {
+    var parts = key.split('-').map(Number);
+    return new Date(parts[0], parts[1] - 1, parts[2]);
+  }
+
+  function addDays(d, n) {
+    var c = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    c.setDate(c.getDate() + n);
+    return c;
+  }
+
+  function dayDiff(a, b) {
+    var ms = new Date(b.getFullYear(), b.getMonth(), b.getDate()) -
+             new Date(a.getFullYear(), a.getMonth(), a.getDate());
+    return Math.round(ms / 86400000);
+  }
+
+  function defaultData() {
+    return {
+      version: 1,
+      habits: [],
+      focusRecords: {},
+      settings: { focusDuration: 25, breakDuration: 5, theme: 'system' },
+      focusRuntime: { mode: 'focus', isRunning: false, endAt: 0, remaining: 1500, total: 1500 },
+      updatedAt: new Date().toISOString()
+    };
+  }
+
+  function normalize(raw) {
+    var d = defaultData();
+    if (!raw || typeof raw !== 'object') return d;
+    if (Array.isArray(raw.habits)) {
+      d.habits = raw.habits.filter(function (h) {
+        return h && typeof h.name === 'string' && h.name.trim();
+      }).map(function (h) {
+        return {
+          id: h.id || 'h_' + Math.random().toString(36).slice(2, 9),
+          name: String(h.name).slice(0, 8),
+          icon: h.icon || '🧘',
+          color: h.color || COLORS[0],
+          createdAt: h.createdAt || dateKey(),
+          checkInDates: Array.isArray(h.checkInDates) ? h.checkInDates.slice() : []
+        };
+      });
+    }
+    if (raw.focusRecords && typeof raw.focusRecords === 'object') {
+      Object.keys(raw.focusRecords).forEach(function (k) {
+        var v = Number(raw.focusRecords[k]);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(k) && isFinite(v) && v > 0) d.focusRecords[k] = v;
+      });
+    }
+    if (raw.settings) {
+      var f = Number(raw.settings.focusDuration);
+      var b = Number(raw.settings.breakDuration);
+      d.settings.focusDuration = isFinite(f) && f >= 10 && f <= 90 ? f : 25;
+      d.settings.breakDuration = isFinite(b) && b >= 10 && b <= 90 ? b : 5;
+      d.settings.theme = ['light', 'dark', 'system'].indexOf(raw.settings.theme) >= 0
+        ? raw.settings.theme : 'system';
+    }
+    if (raw.focusRuntime) {
+      var rt = raw.focusRuntime;
+      d.focusRuntime.mode = rt.mode === 'break' ? 'break' : 'focus';
+      d.focusRuntime.total = isFinite(rt.total) && rt.total > 0 ? rt.total : d.settings.focusDuration * 60;
+      d.focusRuntime.remaining = isFinite(rt.remaining) ? Math.max(0, rt.remaining) : d.focusRuntime.total;
+      d.focusRuntime.isRunning = !!rt.isRunning;
+      d.focusRuntime.endAt = isFinite(rt.endAt) ? rt.endAt : 0;
+    }
+    return d;
+  }
+
+  function migrateLegacy() {
+    var hasOld = false;
+    var out = defaultData();
+    try {
+      var rawHabits = localStorage.getItem(LEGACY.habits);
+      if (rawHabits) {
+        hasOld = true;
+        var parsed = JSON.parse(rawHabits);
+        var list = Array.isArray(parsed) ? parsed : (parsed && parsed.habits);
+        if (Array.isArray(list)) out.habits = list;
+      }
+    } catch (e) { /* ignore broken legacy data */ }
+    try {
+      var rawRecords = localStorage.getItem(LEGACY.records);
+      if (rawRecords) {
+        hasOld = true;
+        out.focusRecords = JSON.parse(rawRecords) || {};
+      }
+    } catch (e) { /* ignore */ }
+    try {
+      var rawSettings = localStorage.getItem(LEGACY.settings);
+      if (rawSettings) {
+        hasOld = true;
+        var s = JSON.parse(rawSettings) || {};
+        if (s.focusDuration) out.settings.focusDuration = s.focusDuration;
+        if (s.breakDuration) out.settings.breakDuration = s.breakDuration;
+      }
+    } catch (e) { /* ignore */ }
+    try {
+      var t = localStorage.getItem(LEGACY.themeHabit) || localStorage.getItem(LEGACY.themeFocus);
+      if (t) {
+        hasOld = true;
+        out.settings.theme = t === 'dark' ? 'dark' : 'light';
+      }
+    } catch (e) { /* ignore */ }
+    if (!hasOld) return null;
+    out = normalize(out);
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(out)); } catch (e) { /* ignore */ }
+    return out;
+  }
+
+  var data = loadData();
+  var migratedLegacy = false;
+
+  function loadData() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return normalize(JSON.parse(raw));
+    } catch (e) { /* fall through */ }
+    var legacy = migrateLegacy();
+    if (legacy) { migratedLegacy = true; return legacy; }
+    return defaultData();
+  }
+
+  function save() {
+    data.updatedAt = new Date().toISOString();
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) { /* ignore */ }
+  }
+
+  /* ==========================================================
+     Helpers
+     ========================================================== */
+  function $(sel, root) { return (root || document).querySelector(sel); }
+  function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function hexToRgb(hex) {
+    var h = hex.replace('#', '');
+    if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    var n = parseInt(h, 16);
+    return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
+  }
+
+  function rgba(hex, alpha) {
+    var c = hexToRgb(hex);
+    return 'rgba(' + c.r + ',' + c.g + ',' + c.b + ',' + alpha + ')';
+  }
+
+  function lighten(hex, amount) {
+    var c = hexToRgb(hex);
+    function up(v) { return Math.min(255, Math.round(v + (255 - v) * amount)); }
+    return 'rgb(' + up(c.r) + ',' + up(c.g) + ',' + up(c.b) + ')';
+  }
+
+  /* ==========================================================
+     Theme
+     ========================================================== */
+  var media = window.matchMedia('(prefers-color-scheme: dark)');
+  var systemDark = media.matches;
+
+  function resolvedDark() {
+    var t = data.settings.theme;
+    if (t === 'dark') return true;
+    if (t === 'light') return false;
+    return systemDark;
+  }
+
+  function applyTheme() {
+    var dark = resolvedDark();
+    document.body.classList.toggle('dark', dark);
+    var meta = $('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', dark ? '#0a0a12' : '#eef2f8');
+    var icon = $('#themeIcon');
+    if (icon) {
+      icon.innerHTML = dark
+        ? '<circle cx="12" cy="12" r="4.2"/><line x1="12" y1="2.4" x2="12" y2="4.4"/><line x1="12" y1="19.6" x2="12" y2="21.6"/><line x1="2.4" y1="12" x2="4.4" y2="12"/><line x1="19.6" y1="12" x2="21.6" y2="12"/><line x1="5.2" y1="5.2" x2="6.6" y2="6.6"/><line x1="17.4" y1="17.4" x2="18.8" y2="18.8"/><line x1="5.2" y1="18.8" x2="6.6" y2="17.4"/><line x1="17.4" y1="6.6" x2="18.8" y2="5.2"/>'
+        : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    }
+    $$('#themeSegmented button').forEach(function (btn) {
+      btn.classList.toggle('active', btn.dataset.theme === data.settings.theme);
+    });
+  }
+
+  function setTheme(theme, persist) {
+    data.settings.theme = theme;
+    if (persist !== false) save();
+    applyTheme();
+  }
+
+  media.addEventListener('change', function (e) {
+    systemDark = e.matches;
+    if (data.settings.theme === 'system') applyTheme();
+  });
+
+  /* ==========================================================
+     UI helpers
+     ========================================================== */
+  var toastTimer = null;
+
+  function showToast(msg) {
+    var el = $('#toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2200);
+  }
+
+  function openSheet(sheetId, maskId) {
+    var sheet = $('#' + sheetId);
+    var mask = $('#' + maskId);
+    mask.classList.add('show');
+    sheet.classList.add('show');
+  }
+
+  function closeSheet(sheetId, maskId) {
+    var sheet = $('#' + sheetId);
+    var mask = $('#' + maskId);
+    sheet.classList.remove('show');
+    mask.classList.remove('show');
+  }
+
+  function burstParticles(x, y, color) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    for (var i = 0; i < 14; i++) {
+      var p = document.createElement('div');
+      p.className = 'particle';
+      p.style.background = color;
+      p.style.left = x + 'px';
+      p.style.top = y + 'px';
+      document.body.appendChild(p);
+      (function (node) {
+        requestAnimationFrame(function () {
+          var angle = Math.random() * Math.PI * 2;
+          var dist = 34 + Math.random() * 52;
+          node.style.transform = 'translate(' + Math.cos(angle) * dist + 'px,' +
+                                 Math.sin(angle) * dist + 'px) scale(' + (0.4 + Math.random()) + ')';
+          node.style.opacity = '0';
+        });
+        setTimeout(function () { node.remove(); }, 700);
+      })(p);
+    }
+  }
+
+  function ripple(x, y, color) {
+    var r = document.createElement('div');
+    r.className = 'ripple-effect';
+    r.style.left = x + 'px';
+    r.style.top = y + 'px';
+    r.style.color = color;
+    document.body.appendChild(r);
+    setTimeout(function () { r.remove(); }, 700);
+  }
+
+  function launchConfetti() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var colors = ['#FF3B30', '#FF9500', '#FFCC00', '#34C759', '#007AFF', '#AF52DE'];
+    for (var i = 0; i < 48; i++) {
+      var piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = (Math.random() * 100) + 'vw';
+      piece.style.top = (-Math.random() * 20) + 'vh';
+      piece.style.background = colors[i % colors.length];
+      piece.style.animationDuration = (1.6 + Math.random() * 1.4) + 's';
+      piece.style.animationDelay = (Math.random() * 0.5) + 's';
+      document.body.appendChild(piece);
+      setTimeout(function (p) { return function () { p.remove(); }; }(piece), 3600);
+    }
+  }
+
+  var badgeTimer = null;
+  function showBadge(text) {
+    var popup = $('#badgePopup');
+    $('#badgeSub').textContent = text;
+    popup.classList.add('show');
+    clearTimeout(badgeTimer);
+    badgeTimer = setTimeout(function () { popup.classList.remove('show'); }, 2400);
+  }
+
+  /* ==========================================================
+     Habits
+     ========================================================== */
+  function safeColor(hex) {
+    return /^#[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(hex || '') ? hex : COLORS[0];
+  }
+
+  function isChecked(habit, key) {
+    return habit.checkInDates.indexOf(key) >= 0;
+  }
+
+  function currentStreak(habit) {
+    if (!habit.checkInDates.length) return 0;
+    var set = {};
+    habit.checkInDates.forEach(function (k) { set[k] = true; });
+    var today = new Date();
+    var cursor = set[dateKey(today)] ? today : addDays(today, -1);
+    if (!set[dateKey(cursor)]) return 0;
+    var count = 0;
+    while (set[dateKey(cursor)]) {
+      count++;
+      cursor = addDays(cursor, -1);
+    }
+    return count;
+  }
+
+  function longestStreak(habit) {
+    if (!habit.checkInDates.length) return 0;
+    var keys = habit.checkInDates.slice().sort();
+    var best = 1;
+    var run = 1;
+    for (var i = 1; i < keys.length; i++) {
+      if (dayDiff(parseKey(keys[i - 1]), parseKey(keys[i])) === 1) {
+        run++;
+      } else {
+        run = 1;
+      }
+      if (run > best) best = run;
+    }
+    return best;
+  }
+
+  function todayDoneCount() {
+    var key = dateKey();
+    return data.habits.filter(function (h) { return isChecked(h, key); }).length;
+  }
+
+  function bestCurrentStreak() {
+    var best = 0;
+    data.habits.forEach(function (h) {
+      var s = currentStreak(h);
+      if (s > best) best = s;
+    });
+    return best;
+  }
+
+  function renderTodayOverview() {
+    var total = data.habits.length;
+    var done = todayDoneCount();
+    $('#todayDone').textContent = done;
+    $('#todayTotal').textContent = '/ ' + total + ' 已完成';
+    $('#todayBarFill').style.width = (total ? (done / total) * 100 : 0) + '%';
+    var streak = bestCurrentStreak();
+    $('#todayStreak').textContent = '连续 ' + streak + ' 天';
+  }
+
+  function habitCardHtml(habit, bumpId) {
+    var color = safeColor(habit.color);
+    var checked = isChecked(habit, dateKey());
+    var streak = currentStreak(habit);
+    var bump = bumpId === habit.id ? ' bump' : '';
+    var badge = streak >= 30 ? '<span class="habit-badge">30 天</span>'
+      : (streak >= 7 ? '<span class="habit-badge">7 天</span>' : '');
+    var vars = '--hc:' + color +
+      ';--hc-2:' + lighten(color, 0.2) +
+      ';--hc-bg:' + rgba(color, 0.16) +
+      ';--hc-border:' + rgba(color, 0.4) +
+      ';--hc-shadow:' + rgba(color, 0.45) +
+      ';--hc-soft:' + rgba(color, 0.2);
+    return '' +
+      '<div class="habit-card" data-id="' + habit.id + '" style="' + vars + '">' +
+        '<div class="habit-icon">' + escapeHtml(habit.icon) + '</div>' +
+        '<div class="habit-info">' +
+          '<div class="habit-name">' + escapeHtml(habit.name) + badge + '</div>' +
+          '<div class="habit-streak">' +
+            '<span class="streak-num' + bump + '">' + streak + '</span> 天连续' +
+          '</div>' +
+        '</div>' +
+        '<button class="checkin-btn' + (checked ? ' checked' : '') + '" ' +
+          'data-checkin="' + habit.id + '" type="button" ' +
+          'aria-label="' + (checked ? '取消打卡' : '打卡') + '">' +
+          (checked ? '✓' : '') +
+        '</button>' +
+      '</div>';
+  }
+
+  function renderHabits(bumpId) {
+    var grid = $('#habitsGrid');
+    if (!data.habits.length) {
+      grid.innerHTML =
+        '<div class="empty-state">' +
+          '<div class="empty-icon">🪴</div>' +
+          '<div class="empty-title">还没有习惯</div>' +
+          '<div class="empty-desc">从一个小目标开始，<br>每天前进一步，习惯会自己长出来。</div>' +
+          '<button class="empty-btn" id="emptyAddBtn" type="button">添加第一个习惯</button>' +
+        '</div>';
+      return;
+    }
+    grid.innerHTML = data.habits.map(function (h) {
+      return habitCardHtml(h, bumpId);
+    }).join('');
+  }
+
+  function toggleCheckIn(id, btn) {
+    var habit = data.habits.find(function (h) { return h.id === id; });
+    if (!habit) return;
+    var key = dateKey();
+    var idx = habit.checkInDates.indexOf(key);
+    var color = safeColor(habit.color);
+
+    if (idx >= 0) {
+      habit.checkInDates.splice(idx, 1);
+      save();
+      renderHabits();
+      renderAllStats();
+      showToast('已取消打卡');
+      return;
+    }
+
+    habit.checkInDates.push(key);
+    var streak = currentStreak(habit);
+
+    var rect = btn ? btn.getBoundingClientRect() : null;
+    if (rect) {
+      burstParticles(rect.left + rect.width / 2, rect.top + rect.height / 2, color);
+      ripple(rect.left + rect.width / 2, rect.top + rect.height / 2, color);
+    }
+    save();
+    renderHabits(id);
+    renderTodayOverview();
+    renderAllStats();
+
+    if (streak === 7) {
+      launchConfetti();
+      showToast('坚持 7 天，太棒了！');
+    } else if (streak >= 30 && habit.checkInDates.length === streak) {
+      showBadge('连续 ' + streak + ' 天 · ' + habit.name);
+      showToast('解锁 30 天成就！');
+    } else {
+      showToast('已打卡 · 连续 ' + streak + ' 天');
+    }
+  }
+
+  /* ---------- 添加习惯 ---------- */
+  var pickerIcon = ICONS[0];
+  var pickerColor = COLORS[0];
+
+  function buildPickers() {
+    var iconGrid = $('#iconGrid');
+    iconGrid.innerHTML = ICONS.map(function (icon, i) {
+      return '<button class="icon-opt' + (i === 0 ? ' active' : '') + '" data-icon="' +
+        icon + '" type="button">' + icon + '</button>';
+    }).join('');
+
+    var colorRow = $('#colorRow');
+    colorRow.innerHTML = COLORS.map(function (color, i) {
+      return '<button class="color-opt' + (i === 0 ? ' active' : '') + '" data-color="' +
+        color + '" type="button" style="background:' + color + ';color:' + color + '"></button>';
+    }).join('');
+  }
+
+  function openAddSheet() {
+    pickerIcon = ICONS[0];
+    pickerColor = COLORS[0];
+    $('#habitNameInput').value = '';
+    $$('#iconGrid .icon-opt').forEach(function (b, i) {
+      b.classList.toggle('active', i === 0);
+    });
+    $$('#colorRow .color-opt').forEach(function (b, i) {
+      b.classList.toggle('active', i === 0);
+    });
+    openSheet('addSheet', 'addMask');
+    setTimeout(function () { $('#habitNameInput').focus(); }, 320);
+  }
+
+  function addHabit() {
+    var input = $('#habitNameInput');
+    var name = input.value.trim();
+    if (!name) {
+      showToast('请先填写习惯名称');
+      input.focus();
+      return;
+    }
+    if (name.length > 8) {
+      showToast('名称最多 8 个字');
+      return;
+    }
+    var duplicated = data.habits.some(function (h) {
+      return h.name.toLowerCase() === name.toLowerCase();
+    });
+    if (duplicated) {
+      showToast('已经有同名习惯了');
+      return;
+    }
+    data.habits.push({
+      id: 'h_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5),
+      name: name,
+      icon: pickerIcon,
+      color: pickerColor,
+      createdAt: dateKey(),
+      checkInDates: []
+    });
+    save();
+    closeSheet('addSheet', 'addMask');
+    renderAll();
+    showToast('已添加「' + name + '」');
+  }
+
+  /* ---------- 习惯操作菜单 ---------- */
+  var menuHabitId = null;
+
+  function openHabitMenu(id) {
+    var habit = data.habits.find(function (h) { return h.id === id; });
+    if (!habit) return;
+    menuHabitId = id;
+    $('#habitMenuHead').textContent = habit.name;
+    $('#habitMenuMask').classList.add('show');
+    $('#habitMenu').classList.add('show');
+  }
+
+  function closeHabitMenu() {
+    $('#habitMenuMask').classList.remove('show');
+    $('#habitMenu').classList.remove('show');
+    menuHabitId = null;
+  }
+
+  function deleteHabit() {
+    var habit = data.habits.find(function (h) { return h.id === menuHabitId; });
+    if (!habit) { closeHabitMenu(); return; }
+    var name = habit.name;
+    data.habits = data.habits.filter(function (h) { return h.id !== habit.id; });
+    closeHabitMenu();
+    save();
+    renderAll();
+    showToast('已删除「' + name + '」');
+  }
+
+  /* ==========================================================
+     Focus timer
+     ========================================================== */
+  var rt = data.focusRuntime;
+
+  function modeMinutes(mode) {
+    return mode === 'break' ? data.settings.breakDuration : data.settings.focusDuration;
+  }
+
+  function modeTotalSeconds(mode) {
+    return modeMinutes(mode) * 60;
+  }
+
+  function fmt(sec) {
+    sec = Math.max(0, Math.round(sec));
+    return pad2(Math.floor(sec / 60)) + ':' + pad2(sec % 60);
+  }
+
+  function currentRemaining() {
+    if (rt.isRunning) return Math.max(0, Math.ceil((rt.endAt - Date.now()) / 1000));
+    return rt.remaining;
+  }
+
+  function applyFocusUI() {
+    var total = rt.total || modeTotalSeconds(rt.mode);
+    var remain = currentRemaining();
+    var pct = total > 0 ? Math.max(0, Math.min(100, (remain / total) * 100)) : 0;
+
+    $('#timeDisplay').textContent = fmt(remain);
+    $('#timerRing').style.setProperty('--progress', pct.toFixed(2));
+    $('#modeBadge').textContent = rt.mode === 'focus' ? '专注模式' : '休息模式';
+    document.body.classList.toggle('mode-break', rt.mode === 'break');
+    document.body.classList.toggle('running', rt.isRunning);
+
+    $('#startBtn').textContent = rt.isRunning ? '暂停'
+      : (remain < total && remain > 0 ? '继续' : '开始');
+    $('#timeSubtitle').textContent = rt.isRunning
+      ? (rt.mode === 'focus' ? '专注中' : '休息中')
+      : (remain >= total ? '准备开始' : '已暂停');
+    $('#focusToday').textContent = '今日已专注 ' + (data.focusRecords[dateKey()] || 0) + ' 分钟';
+
+    document.title = rt.isRunning
+      ? fmt(remain) + ' · ' + (rt.mode === 'focus' ? '专注' : '休息') + ' · RitualFocus'
+      : 'RitualFocus';
+  }
+
+  function startTimer() {
+    if (rt.remaining <= 0) rt.remaining = rt.total || modeTotalSeconds(rt.mode);
+    rt.endAt = Date.now() + rt.remaining * 1000;
+    rt.isRunning = true;
+    save();
+    applyFocusUI();
+    requestNotifyPermission();
+  }
+
+  function pauseTimer() {
+    rt.remaining = currentRemaining();
+    rt.isRunning = false;
+    rt.endAt = 0;
+    save();
+    applyFocusUI();
+  }
+
+  function resetTimer() {
+    rt.isRunning = false;
+    rt.endAt = 0;
+    rt.total = modeTotalSeconds(rt.mode);
+    rt.remaining = rt.total;
+    save();
+    applyFocusUI();
+    showToast('计时已重置');
+  }
+
+  function toggleTimer() {
+    if (rt.isRunning) pauseTimer();
+    else startTimer();
+  }
+
+  function finishCycle() {
+    var finished = rt.mode;
+    var completedAt = rt.endAt ? new Date(rt.endAt) : new Date();
+    rt.isRunning = false;
+    rt.endAt = 0;
+
+    if (finished === 'focus') {
+      var minutes = data.settings.focusDuration;
+      var key = dateKey(completedAt);
+      data.focusRecords[key] = (data.focusRecords[key] || 0) + minutes;
+      rt.mode = 'break';
+    } else {
+      rt.mode = 'focus';
+    }
+
+    rt.total = modeTotalSeconds(rt.mode);
+    rt.remaining = rt.total;
+    save();
+    applyFocusUI();
+    renderAllStats();
+
+    if (finished === 'focus') {
+      notify('专注完成', '已完成 ' + data.settings.focusDuration + ' 分钟专注，休息一下');
+      showToast('专注完成！休息一下 ☕');
+    } else {
+      notify('休息结束', '开始下一个专注吧');
+      showToast('休息结束，开始专注 🎯');
+    }
+    playChime();
+  }
+
+  function tick() {
+    if (!rt.isRunning) return;
+    var remain = Math.ceil((rt.endAt - Date.now()) / 1000);
+    if (remain <= 0) { finishCycle(); return; }
+    if (remain !== rt.remaining) {
+      rt.remaining = remain;
+      applyFocusUI();
+    }
+  }
+
+  function applyDurations() {
+    if (!rt.isRunning) {
+      rt.total = modeTotalSeconds(rt.mode);
+      rt.remaining = rt.total;
+      save();
+      applyFocusUI();
+    }
+  }
+
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) tick();
+  });
+
+  /* 通知 / 声音 */
+  function requestNotifyPermission() {
+    try {
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  function notify(title, body) {
+    try {
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification(title, { body: body, tag: 'ritualfocus' });
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  var audioCtx = null;
+  function playChime() {
+    try {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      audioCtx = audioCtx || new AC();
+      var t = audioCtx.currentTime;
+      [660, 880].forEach(function (freq, i) {
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        var at = t + i * 0.18;
+        gain.gain.setValueAtTime(0.0001, at);
+        gain.gain.exponentialRampToValueAtTime(0.18, at + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.32);
+        osc.start(at);
+        osc.stop(at + 0.34);
+      });
+    } catch (e) { /* ignore */ }
+  }
+
+  /* ==========================================================
+     Stats / Heatmaps
+     ========================================================== */
+  var heatView = 'month';
+
+  function monthCompletionRate() {
+    var now = new Date();
+    var days = now.getDate();
+    var count = data.habits.length;
+    if (!count || !days) return 0;
+    var done = 0;
+    data.habits.forEach(function (h) {
+      h.checkInDates.forEach(function (k) {
+        var d = parseKey(k);
+        if (d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()) done++;
+      });
+    });
+    return Math.min(100, Math.round((done / (count * days)) * 100));
+  }
+
+  function longestOverallStreak() {
+    var best = 0;
+    data.habits.forEach(function (h) {
+      var s = longestStreak(h);
+      if (s > best) best = s;
+    });
+    return best;
+  }
+
+  function totalFocusMinutes() {
+    var sum = 0;
+    Object.keys(data.focusRecords).forEach(function (k) { sum += data.focusRecords[k]; });
+    return sum;
+  }
+
+  function habitLevel(date) {
+    var total = data.habits.length;
+    if (!total) return 0;
+    var key = dateKey(date);
+    var done = data.habits.filter(function (h) { return isChecked(h, key); }).length;
+    if (done === 0) return 0;
+    var ratio = done / total;
+    if (ratio < 0.34) return 1;
+    if (ratio < 0.67) return 2;
+    if (ratio < 1) return 3;
+    return 4;
+  }
+
+  function focusLevel(minutes) {
+    if (!minutes) return 0;
+    if (minutes <= 25) return 1;
+    if (minutes <= 50) return 2;
+    if (minutes <= 75) return 3;
+    return 4;
+  }
+
+  function cellClass(date) {
+    var today = new Date();
+    var cls = 'lv-' + habitLevel(date);
+    if (dayDiff(date, today) > 0) cls += ' future';
+    else if (dateKey(date) === dateKey(today)) cls += ' today';
+    return cls;
+  }
+
+  function monthColumn(monthDate) {
+    var year = monthDate.getFullYear();
+    var month = monthDate.getMonth();
+    var daysInMonth = new Date(year, month + 1, 0).getDate();
+    var firstWeekday = (new Date(year, month, 1).getDay() + 6) % 7;
+    var cells = '';
+    for (var i = 0; i < firstWeekday; i++) cells += '<div class="hm-cell empty"></div>';
+    for (var d = 1; d <= daysInMonth; d++) {
+      var dt = new Date(year, month, d);
+      cells += '<div class="hm-cell ' + cellClass(dt) + '" data-date="' + dateKey(dt) +
+               '" data-kind="habit"></div>';
+    }
+    return '<div class="hm-month">' +
+             '<div class="hm-month-label">' + (month + 1) + '月</div>' +
+             '<div class="hm-grid">' + cells + '</div>' +
+           '</div>';
+  }
+
+  function weekColumn(weekStart) {
+    var cells = '';
+    for (var i = 0; i < 7; i++) {
+      var dt = addDays(weekStart, i);
+      cells += '<div class="hm-cell ' + cellClass(dt) + '" data-date="' + dateKey(dt) +
+               '" data-kind="habit"></div>';
+    }
+    return '<div class="hm-week-col">' +
+             '<div class="hm-week-cells">' + cells + '</div>' +
+             '<div class="hm-week-label">' + (weekStart.getMonth() + 1) + '/' + weekStart.getDate() + '</div>' +
+           '</div>';
+  }
+
+  function renderHabitHeatmap() {
+    var wrap = $('#habitHeatmap');
+    var today = new Date();
+    var html = '';
+    if (heatView === 'month') {
+      var list = '';
+      for (var i = 11; i >= 0; i--) {
+        list += monthColumn(new Date(today.getFullYear(), today.getMonth() - i, 1));
+      }
+      html = '<div class="hm-months">' + list + '</div>';
+    } else {
+      var thisMonday = addDays(today, -((today.getDay() + 6) % 7));
+      var cols = '';
+      for (var w = 13; w >= 0; w--) {
+        cols += weekColumn(addDays(thisMonday, -7 * w));
+      }
+      html = '<div class="hm-weeks">' + cols + '</div>';
+    }
+    wrap.innerHTML = html;
+    requestAnimationFrame(function () {
+      wrap.scrollLeft = wrap.scrollWidth;
+    });
+  }
+
+  function renderFocusHeatmap() {
+    var grid = $('#focusHeatmap');
+    var today = new Date();
+    var start = addDays(today, -364);
+    var shift = (start.getDay() + 6) % 7;
+    start = addDays(start, -shift);
+
+    var cells = '';
+    var cursor = start;
+    while (dayDiff(cursor, today) >= 0) {
+      var minutes = data.focusRecords[dateKey(cursor)] || 0;
+      cells += '<div class="heatmap-cell' + (minutes ? ' level-' + focusLevel(minutes) : '') +
+               '" data-date="' + dateKey(cursor) + '" data-kind="focus"></div>';
+      cursor = addDays(cursor, 1);
+    }
+    grid.innerHTML = cells;
+    var scroll = $('#focusScroll');
+    requestAnimationFrame(function () {
+      scroll.scrollLeft = scroll.scrollWidth;
+    });
+  }
+
+  function renderAllStats() {
+    $('#statFocus').textContent = data.focusRecords[dateKey()] || 0;
+    $('#statToday').textContent = todayDoneCount() + '/' + data.habits.length;
+    $('#statStreak').textContent = longestOverallStreak();
+    $('#statRate').textContent = monthCompletionRate() + '%';
+    $('#focusTotal').textContent = '共 ' + totalFocusMinutes() + ' 分钟';
+    renderHabitHeatmap();
+    renderFocusHeatmap();
+    applyFocusUI();
+  }
+
+  function renderAll(bumpId) {
+    renderTodayOverview();
+    renderHabits(bumpId);
+    renderAllStats();
+  }
+
+  /* ---------- Tooltip ---------- */
+  var tooltipTimer = null;
+  var tooltipCell = null;
+
+  function hideTooltip() {
+    $('#tooltip').classList.remove('show');
+    tooltipCell = null;
+  }
+
+  function showTooltip(cell) {
+    if (!cell || !cell.dataset.date) return;
+    var date = cell.dataset.date;
+    var d = parseKey(date);
+    var weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+    var tt = $('#tooltip');
+    var html = '<div class="tt-date">' + (d.getMonth() + 1) + '月' + d.getDate() + '日 · ' +
+               weekdays[d.getDay()] + '</div>';
+
+    if (cell.dataset.kind === 'focus') {
+      var minutes = data.focusRecords[date] || 0;
+      html += '<div class="tt-item' + (minutes ? ' checked' : '') + '">' +
+                '<span class="tt-icon">⏱️</span>' +
+                '<span class="tt-name">专注时长</span>' +
+                '<span class="tt-check">' + (minutes ? minutes + ' 分钟' : '无记录') + '</span>' +
+              '</div>';
+    } else {
+      if (!data.habits.length) {
+        html += '<div class="tt-empty">暂无习惯</div>';
+      } else {
+        data.habits.forEach(function (h) {
+          var checked = isChecked(h, date);
+          html += '<div class="tt-item' + (checked ? ' checked' : '') + '">' +
+                    '<span class="tt-icon">' + escapeHtml(h.icon) + '</span>' +
+                    '<span class="tt-name">' + escapeHtml(h.name) + '</span>' +
+                    '<span class="tt-check">' + (checked ? '✓' : '—') + '</span>' +
+                  '</div>';
+        });
+      }
+    }
+
+    tt.innerHTML = html;
+    tt.classList.add('show');
+
+    var rect = cell.getBoundingClientRect();
+    var w = tt.offsetWidth;
+    var h = tt.offsetHeight;
+    var left = Math.max(8, Math.min(window.innerWidth - w - 8, rect.left + rect.width / 2 - w / 2));
+    var top = rect.top - h - 10;
+    if (top < 8) top = rect.bottom + 10;
+    tt.style.left = left + 'px';
+    tt.style.top = top + 'px';
+    tooltipCell = cell;
+
+    clearTimeout(tooltipTimer);
+    tooltipTimer = setTimeout(hideTooltip, 4200);
+  }
+
+  /* ---------- Export ---------- */
+  function download(filename, content, mime) {
+    var blob = new Blob([content], { type: mime });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () {
+      URL.revokeObjectURL(url);
+      a.remove();
+    }, 400);
+  }
+
+  function exportJSON() {
+    download('ritualfocus-' + dateKey() + '.json', JSON.stringify(data, null, 2), 'application/json');
+    showToast('已导出 JSON');
+  }
+
+  function csvCell(value) {
+    var s = String(value);
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+
+  function exportCSV() {
+    var names = data.habits.map(function (h) { return h.name; });
+    var dates = {};
+    data.habits.forEach(function (h) {
+      dates[h.createdAt] = true;
+      h.checkInDates.forEach(function (k) { dates[k] = true; });
+    });
+    Object.keys(data.focusRecords).forEach(function (k) { dates[k] = true; });
+    var list = Object.keys(dates).sort();
+
+    var lines = ['日期,' + names.map(csvCell).join(',') + ',专注分钟'];
+    list.forEach(function (date) {
+      var row = [date];
+      data.habits.forEach(function (h) {
+        row.push(isChecked(h, date) ? '1' : '0');
+      });
+      row.push(data.focusRecords[date] || 0);
+      lines.push(row.map(csvCell).join(','));
+    });
+    download('ritualfocus-' + dateKey() + '.csv', '\ufeff' + lines.join('\n'), 'text/csv;charset=utf-8');
+    showToast('已导出 CSV');
+  }
+
+  /* ==========================================================
+     Navigation & events
+     ========================================================== */
+  var currentTab = 'habits';
+
+  function switchTab(tab) {
+    currentTab = tab;
+    $$('.page').forEach(function (page) {
+      page.classList.toggle('active', page.id === 'page' + tab.charAt(0).toUpperCase() + tab.slice(1));
+    });
+    $$('.tab-item').forEach(function (btn) {
+      btn.classList.toggle('active', btn.dataset.tab === tab);
+    });
+    $('#navTitle').textContent = tab === 'habits' ? '习惯' : (tab === 'focus' ? '专注' : '统计');
+    hideTooltip();
+
+    if (tab === 'stats') renderAllStats();
+    if (tab === 'focus') applyFocusUI();
+    if (tab === 'habits') renderTodayOverview();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function openSettings() {
+    $('#focusInput').value = data.settings.focusDuration;
+    $('#breakInput').value = data.settings.breakDuration;
+    openSheet('settingsSheet', 'settingsMask');
+    applyTheme();
+  }
+
+  function bindEvents() {
+    $('#themeBtn').addEventListener('click', function () {
+      setTheme(resolvedDark() ? 'light' : 'dark');
+    });
+    $('#settingsBtn').addEventListener('click', openSettings);
+
+    $$('.tab-item').forEach(function (btn) {
+      btn.addEventListener('click', function () { switchTab(btn.dataset.tab); });
+    });
+
+    /* 添加习惯 */
+    $('#addBtn').addEventListener('click', openAddSheet);
+    $('#habitsGrid').addEventListener('click', function (e) {
+      if (e.target.closest('#emptyAddBtn')) { openAddSheet(); return; }
+      var checkin = e.target.closest('[data-checkin]');
+      if (checkin) {
+        e.stopPropagation();
+        toggleCheckIn(checkin.dataset.checkin, checkin);
+        return;
+      }
+      var card = e.target.closest('.habit-card');
+      if (card) openHabitMenu(card.dataset.id);
+    });
+
+    $('#addMask').addEventListener('click', function () { closeSheet('addSheet', 'addMask'); });
+    $('#addCloseBtn').addEventListener('click', function () { closeSheet('addSheet', 'addMask'); });
+    $('#addCancelBtn').addEventListener('click', function () { closeSheet('addSheet', 'addMask'); });
+    $('#addConfirmBtn').addEventListener('click', addHabit);
+    $('#habitNameInput').addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') addHabit();
+    });
+
+    $('#iconGrid').addEventListener('click', function (e) {
+      var btn = e.target.closest('.icon-opt');
+      if (!btn) return;
+      pickerIcon = btn.dataset.icon;
+      $$('#iconGrid .icon-opt').forEach(function (b) { b.classList.toggle('active', b === btn); });
+    });
+    $('#colorRow').addEventListener('click', function (e) {
+      var btn = e.target.closest('.color-opt');
+      if (!btn) return;
+      pickerColor = btn.dataset.color;
+      $$('#colorRow .color-opt').forEach(function (b) { b.classList.toggle('active', b === btn); });
+    });
+
+    /* 习惯菜单 */
+    $('#habitMenuMask').addEventListener('click', closeHabitMenu);
+    $('#habitMenu').addEventListener('click', function (e) {
+      var action = e.target.closest('[data-habit-action]');
+      if (!action) return;
+      if (action.dataset.habitAction === 'delete') deleteHabit();
+      else closeHabitMenu();
+    });
+
+    /* 专注计时 */
+    $('#startBtn').addEventListener('click', toggleTimer);
+    $('#resetBtn').addEventListener('click', resetTimer);
+
+    /* 统计视图切换 */
+    $$('.view-tab').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        heatView = btn.dataset.view;
+        $$('.view-tab').forEach(function (b) { b.classList.toggle('active', b === btn); });
+        renderHabitHeatmap();
+        hideTooltip();
+      });
+    });
+
+    /* 设置 */
+    $('#settingsMask').addEventListener('click', function () { closeSheet('settingsSheet', 'settingsMask'); });
+    $('#settingsDoneBtn').addEventListener('click', function () { closeSheet('settingsSheet', 'settingsMask'); });
+    $$('#themeSegmented button').forEach(function (btn) {
+      btn.addEventListener('click', function () { setTheme(btn.dataset.theme); });
+    });
+
+    function commitDuration(input, key) {
+      var value = Number(input.value);
+      if (!isFinite(value) || value < 10 || value > 90) {
+        input.value = data.settings[key];
+        showToast('时长需在 10 - 90 分钟之间');
+        return;
+      }
+      value = Math.round(value);
+      data.settings[key] = value;
+      input.value = value;
+      save();
+      applyDurations();
+      showToast('已更新时长');
+    }
+
+    $('#focusInput').addEventListener('change', function () {
+      commitDuration(this, 'focusDuration');
+    });
+    $('#breakInput').addEventListener('change', function () {
+      commitDuration(this, 'breakDuration');
+    });
+
+    $$('[data-export]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (btn.dataset.export === 'json') exportJSON();
+        else exportCSV();
+      });
+    });
+
+    /* Tooltip */
+    ['mouseover', 'mousemove'].forEach(function (evt) {
+      document.addEventListener(evt, function (e) {
+        var cell = e.target.closest ? e.target.closest('.hm-cell[data-date], .heatmap-cell[data-date]') : null;
+        if (cell && cell !== tooltipCell) showTooltip(cell);
+      });
+    });
+    ['mouseout', 'scroll'].forEach(function (evt) {
+      document.addEventListener(evt, function (e) {
+        if (evt === 'scroll' || (e.target.closest && e.target.closest('.hm-cell, .heatmap-cell'))) {
+          hideTooltip();
+        }
+      }, true);
+    });
+    document.addEventListener('click', function (e) {
+      var cell = e.target.closest ? e.target.closest('.hm-cell[data-date], .heatmap-cell[data-date]') : null;
+      if (cell) showTooltip(cell);
+      else if (e.target.closest && !e.target.closest('#tooltip')) hideTooltip();
+    });
+    window.addEventListener('resize', hideTooltip);
+
+    /* 键盘 */
+    document.addEventListener('keydown', function (e) {
+      var tag = (e.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || e.target.isContentEditable) return;
+
+      if (e.key === 'Escape') {
+        closeSheet('addSheet', 'addMask');
+        closeSheet('settingsSheet', 'settingsMask');
+        closeHabitMenu();
+        hideTooltip();
+        return;
+      }
+      if (e.code === 'Space' || e.key === ' ') {
+        if (currentTab !== 'focus') return;
+        if ($('#addSheet').classList.contains('show') ||
+            $('#settingsSheet').classList.contains('show')) return;
+        e.preventDefault();
+        toggleTimer();
+      }
+    });
+  }
+
+  /* ==========================================================
+     Init
+     ========================================================== */
+  function restoreRuntime() {
+    if (rt.isRunning) {
+      if (rt.endAt <= Date.now()) {
+        finishCycle();
+      } else {
+        rt.remaining = Math.max(0, Math.ceil((rt.endAt - Date.now()) / 1000));
+      }
+    } else {
+      rt.total = rt.total || modeTotalSeconds(rt.mode);
+      if (rt.remaining > rt.total) rt.remaining = rt.total;
+    }
+  }
+
+  function init() {
+    buildPickers();
+    applyTheme();
+    restoreRuntime();
+    applyFocusUI();
+    renderTodayOverview();
+    renderHabits();
+    renderAllStats();
+    bindEvents();
+    setInterval(tick, 250);
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>
