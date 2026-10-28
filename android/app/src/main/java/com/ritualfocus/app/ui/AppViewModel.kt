@@ -92,16 +92,21 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun updateSchedule(id: String, scheduleType: String, weekdays: Set<Int>, intervalDays: Int) {
+        val today = Dates.key()
         update { data ->
             data.copy(habits = data.habits.map { habit ->
                 if (habit.id != id) {
                     habit
                 } else {
+                    val step = intervalDays.coerceIn(2, 30)
+                    // 切到间隔计划或改变间隔天数时，以今天为新起点；仅调整星期不影响相位
+                    val reAnchor = scheduleType == "interval" &&
+                        (habit.scheduleType != "interval" || habit.intervalDays != step)
                     habit.copy(
                         scheduleType = scheduleType,
                         weekdays = weekdays,
-                        intervalDays = intervalDays.coerceIn(2, 30),
-                        scheduleAnchor = habit.createdAt
+                        intervalDays = step,
+                        scheduleAnchor = if (reAnchor) today else habit.scheduleAnchor
                     )
                 }
             })
@@ -261,7 +266,8 @@ class AppViewModel(app: Application) : AndroidViewModel(app) {
         var records = current.focusRecords
         var finishedMinutes = 0
         if (wasFocus) {
-            finishedMinutes = current.settings.focusDuration
+            // 按本次会话实际时长记录，避免运行中修改设置导致记录失真
+            finishedMinutes = (runtime.total / 60).toInt().coerceAtLeast(1)
             val key = Dates.key(completedAt)
             records = records.toMutableMap().apply {
                 this[key] = (this[key] ?: 0) + finishedMinutes

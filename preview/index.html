@@ -896,6 +896,7 @@ body.dark .tab-bar {
   background: none;
   color: var(--text3);
   font-size: 10.5px;
+  line-height: 12px;
   font-weight: 500;
   display: flex;
   flex-direction: column;
@@ -914,8 +915,12 @@ body.dark .tab-bar {
 }
 .tab-item:active .tab-icon { transform: scale(0.9); }
 .tab-icon {
-  font-size: 20px;
-  line-height: 1;
+  font-size: 18px;
+  line-height: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.3s;
 }
 @keyframes tabBounce {
@@ -1857,10 +1862,10 @@ body.running .ring-glow { opacity: 0.85; animation: pulseGlow 2s ease-in-out inf
       </div>
       <div class="setting-item">
         <span>休息</span>
-        <input type="number" class="setting-input" id="breakInput" min="10" max="90" step="5" inputmode="numeric" value="5">
+        <input type="number" class="setting-input" id="breakInput" min="1" max="90" step="1" inputmode="numeric" value="5">
       </div>
     </div>
-    <div class="setting-hint">范围 10 - 90 分钟，未开始计时时立即生效</div>
+    <div class="setting-hint">专注 10 - 90 分钟，休息 1 - 90 分钟，未开始计时时立即生效</div>
   </div>
 
   <div class="field">
@@ -2005,7 +2010,7 @@ body.running .ring-glow { opacity: 0.85; animation: pulseGlow 2s ease-in-out inf
       var f = Number(raw.settings.focusDuration);
       var b = Number(raw.settings.breakDuration);
       d.settings.focusDuration = isFinite(f) && f >= 10 && f <= 90 ? f : 25;
-      d.settings.breakDuration = isFinite(b) && b >= 10 && b <= 90 ? b : 5;
+      d.settings.breakDuration = isFinite(b) && b >= 1 && b <= 90 ? b : 5;
       d.settings.theme = ['light', 'dark', 'system'].indexOf(raw.settings.theme) >= 0
         ? raw.settings.theme : 'system';
     }
@@ -2793,7 +2798,7 @@ body.running .ring-glow { opacity: 0.85; animation: pulseGlow 2s ease-in-out inf
     rt.endAt = 0;
 
     if (finished === 'focus') {
-      var minutes = data.settings.focusDuration;
+      var minutes = Math.max(1, Math.round((rt.total || modeTotalSeconds('focus')) / 60));
       var key = dateKey(completedAt);
       data.focusRecords[key] = (data.focusRecords[key] || 0) + minutes;
       rt.mode = 'break';
@@ -2808,7 +2813,7 @@ body.running .ring-glow { opacity: 0.85; animation: pulseGlow 2s ease-in-out inf
     renderAllStats();
 
     if (finished === 'focus') {
-      notify('专注完成', '已完成 ' + data.settings.focusDuration + ' 分钟专注，休息一下');
+      notify('专注完成', '已完成 ' + minutes + ' 分钟专注，休息一下');
       showToast('专注完成！休息一下 ☕');
     } else {
       notify('休息结束', '开始下一个专注吧');
@@ -3291,9 +3296,12 @@ body.running .ring-glow { opacity: 0.85; animation: pulseGlow 2s ease-in-out inf
 
     function commitDuration(input, key) {
       var value = Number(input.value);
-      if (!isFinite(value) || value < 10 || value > 90) {
+      var min = key === 'breakDuration' ? 1 : 10;
+      if (!isFinite(value) || value < min || value > 90) {
         input.value = data.settings[key];
-        showToast('时长需在 10 - 90 分钟之间');
+        showToast(key === 'breakDuration'
+          ? '休息时长需在 1 - 90 分钟之间'
+          : '专注时长需在 10 - 90 分钟之间');
         return;
       }
       value = Math.round(value);

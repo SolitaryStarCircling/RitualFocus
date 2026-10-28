@@ -107,19 +107,19 @@ fun SettingsSheet(
                 DurationRow("专注", focusText) { input ->
                     focusText = input
                     val value = input.toIntOrNull()
-                    val rest = restText.toIntOrNull()?.takeIf { it in 10..90 } ?: settings.breakDuration
+                    val rest = restText.toIntOrNull()?.takeIf { it in 1..90 } ?: settings.breakDuration
                     if (value != null && value in 10..90) onDurations(value, rest)
                 }
                 DurationRow("休息", restText) { input ->
                     restText = input
                     val value = input.toIntOrNull()
                     val focus = focusText.toIntOrNull()?.takeIf { it in 10..90 } ?: settings.focusDuration
-                    if (value != null && value in 10..90) onDurations(focus, value)
+                    if (value != null && value in 1..90) onDurations(focus, value)
                 }
             }
             Spacer(Modifier.height(8.dp))
             Text(
-                text = "范围 10 - 90 分钟，未开始计时时立即生效",
+                text = "专注 10 - 90 分钟，休息 1 - 90 分钟，未开始计时时立即生效",
                 fontSize = 11.5.sp,
                 color = palette.text3
             )

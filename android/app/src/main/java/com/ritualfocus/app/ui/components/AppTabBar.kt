@@ -39,11 +39,14 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -234,13 +237,32 @@ private fun androidx.compose.foundation.layout.RowScope.TabItem(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(tab.icon, fontSize = 20.sp)
-        Spacer(Modifier.height(3.dp))
+        val density = LocalDensity.current
+        // emoji 字形高度与字号不一致，且 sp 会随系统字体缩放，这里按 dp 固定槽位，避免顶出胶囊
+        val iconSize = with(density) { 19.dp.toSp() }
+        val iconLine = with(density) { 21.dp.toSp() }
+        val labelSize = with(density) { 10.5.dp.toSp() }
+        val labelLine = with(density) { 12.dp.toSp() }
+        Text(
+            text = tab.icon,
+            fontSize = iconSize,
+            lineHeight = iconLine,
+            style = NoFontPadding,
+            maxLines = 1
+        )
+        Spacer(Modifier.height(2.dp))
         Text(
             text = tab.label,
-            fontSize = 10.5.sp,
+            fontSize = labelSize,
+            lineHeight = labelLine,
             fontWeight = if (active) FontWeight.SemiBold else FontWeight.Medium,
-            color = contentColor
+            color = contentColor,
+            style = NoFontPadding,
+            maxLines = 1
         )
     }
 }
+
+private val NoFontPadding = TextStyle(
+    platformStyle = PlatformTextStyle(includeFontPadding = false)
+)

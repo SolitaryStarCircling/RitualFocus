@@ -31,6 +31,12 @@ object Stats {
     fun isRestDay(data: AppData, date: LocalDate): Boolean =
         data.habits.none { isScheduled(it, date) }
 
+    /** 该日期是否已有习惯存在（用于区分「休息日」与「还没开始记录」） */
+    fun hasHabitHistory(data: AppData, date: LocalDate): Boolean =
+        data.habits.any { habit ->
+            Dates.parse(habit.createdAt)?.let { !it.isAfter(date) } == true
+        }
+
     fun scheduledHabits(data: AppData, date: LocalDate): List<Habit> =
         data.habits.filter { isScheduled(it, date) }
 
@@ -54,6 +60,7 @@ object Stats {
 
     fun currentStreak(habit: Habit, today: LocalDate = LocalDate.now()): Int {
         if (habit.checkInDates.isEmpty()) return 0
+        val created = Dates.parse(habit.createdAt)
         var cursor = today
         if (isScheduled(habit, cursor) && !isChecked(habit, Dates.key(cursor))) {
             cursor = cursor.minusDays(1)
@@ -61,6 +68,7 @@ object Stats {
         var count = 0
         var guard = 0
         while (guard < 3700) {
+            if (created != null && cursor.isBefore(created)) break
             if (isScheduled(habit, cursor)) {
                 if (isChecked(habit, Dates.key(cursor))) count++ else break
             }

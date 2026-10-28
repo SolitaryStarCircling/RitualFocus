@@ -159,7 +159,7 @@ fun HabitWeekHeatmap(
                                 level = Stats.habitLevel(data, date),
                                 isFuture = date.isAfter(today),
                                 isToday = date == today,
-                                isRest = Stats.isRestDay(data, date)
+                                isRest = Stats.isRestDay(data, date) && Stats.hasHabitHistory(data, date)
                             ),
                             size = HabitCell
                         ) { onCellClick(date) }
@@ -293,7 +293,15 @@ fun HeatDetailPopup(
                     !Stats.isScheduled(it, date) && it.checkInDates.contains(Dates.key(date))
                 }
                 if (scheduled.isEmpty() && extras.isEmpty()) {
-                    Text("休息日 · 今天没有安排", fontSize = 12.sp, color = palette.text3)
+                    Text(
+                        text = if (Stats.hasHabitHistory(data, date)) {
+                            "休息日 · 今天没有安排"
+                        } else {
+                            "无安排"
+                        },
+                        fontSize = 12.sp,
+                        color = palette.text3
+                    )
                 } else {
                     scheduled.forEach { habit ->
                         val checked = habit.checkInDates.contains(Dates.key(date))
@@ -352,7 +360,7 @@ private fun monthRows(month: YearMonth, data: AppData, today: LocalDate): List<L
                 level = Stats.habitLevel(data, date),
                 isFuture = date.isAfter(today),
                 isToday = date == today,
-                isRest = Stats.isRestDay(data, date)
+                isRest = Stats.isRestDay(data, date) && Stats.hasHabitHistory(data, date)
             )
         )
     }
